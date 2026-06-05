@@ -38,6 +38,7 @@ model User {
 
   provider Provider?
   orders   Order[]
+  reviews  Review[]
 
   role  String? @default("USER")
   phone String?
@@ -130,6 +131,7 @@ model Meal {
 
   orderItems OrderItem[]
   orders     Order[]
+  reviews    Review[]
 }
 
 model Order {
@@ -152,14 +154,22 @@ model Order {
 }
 
 model OrderItem {
-  id       String @id @default(uuid())
+  id       String  @id @default(uuid())
   orderId  String
-  order    Order  @relation(fields: [orderId], references: [id])
+  order    Order   @relation(fields: [orderId], references: [id])
   mealId   String
-  meal     Meal   @relation(fields: [mealId], references: [id])
+  meal     Meal    @relation(fields: [mealId], references: [id])
   quantity Int
-  price    Int
+  price    Decimal
   name     String
 }
 
-
+model Review {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  mealId    String
+  meal      Meal    @relation(fields: [mealId], references: [id])
+  comment   String
+  starCount Decimal
+}
