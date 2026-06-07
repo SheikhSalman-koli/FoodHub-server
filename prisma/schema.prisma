@@ -110,7 +110,7 @@ model Provider {
 model Category {
   id      String  @id @default(uuid())
   name    String  @unique
-  tagline String?
+  slug    String  @unique
   logo    String?
   meals   Meal[]
 }
@@ -118,7 +118,7 @@ model Category {
 model Meal {
   id String @id @default(uuid())
 
-  providerId String   @unique
+  providerId String  
   provider   Provider @relation(fields: [providerId], references: [id])
 
   categoryId String
@@ -126,8 +126,9 @@ model Meal {
 
   name        String
   description String
+  image       String?
   orderCount  Int    @default(0)
-  price       Int
+  price       Decimal
 
   orderItems OrderItem[]
   orders     Order[]

@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma"
 
 type categoryBody = {
     name: string;
-    tagline?: string;
+    slug: string;
     logo?: string
 }
 
