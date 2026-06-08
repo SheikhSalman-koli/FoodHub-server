@@ -85,7 +85,7 @@ export const auth = betterAuth({
         });
 
       } catch (error: any) {
-        throw new Error(error.Message)
+        throw new Error(error.message)
       }
     },
   },

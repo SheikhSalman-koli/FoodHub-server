@@ -13,16 +13,17 @@ datasource db {
 }
 
 enum Role {
-  USER
+  CUSTOMER
   PROVIDER
   ADMIN
 }
 
 enum OrderStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  COMPLETED
+  PLACED
+  PREPARING
+  CANCELLED
+  READY
+  DELIVERED
 }
 
 model User {
@@ -35,12 +36,13 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  isDeleted     Boolean   @default(false)
 
   provider Provider?
   orders   Order[]
   reviews  Review[]
 
-  role  String? @default("USER")
+  role  Role    @default(CUSTOMER)
   phone String?
 
   @@unique([email])
@@ -98,56 +100,56 @@ model Verification {
 model Provider {
   id             String  @id @default(uuid())
   authoremail    String  @unique
-  author         User    @relation(fields: [authoremail], references: [email])
-  restaurentName String
+  author         User    @relation(fields: [authoremail], references: [email], onDelete: Cascade)
+  restaurantName String
   tagline        String
   location       String
   logo           String?
-  meals          Meal[]
-  orders         Order[]
+  isDeleted      Boolean @default(false)
+
+  meals  Meal[]
+  orders Order[]
 }
 
 model Category {
-  id      String  @id @default(uuid())
-  name    String  @unique
-  slug    String  @unique
-  logo    String?
-  meals   Meal[]
+  id    String  @id @default(uuid())
+  name  String  @unique
+  slug  String  @unique
+  logo  String?
+  meals Meal[]
 }
 
 model Meal {
   id String @id @default(uuid())
 
-  providerId String  
-  provider   Provider @relation(fields: [providerId], references: [id])
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   name        String
   description String
   image       String?
-  orderCount  Int    @default(0)
+  orderCount  Int     @default(0)
   price       Decimal
+  isDeleted   Boolean @default(false)
 
   orderItems OrderItem[]
-  orders     Order[]
   reviews    Review[]
 }
 
 model Order {
   id              String      @id @default(uuid())
-  mealId          String
-  meal            Meal        @relation(fields: [mealId], references: [id])
   customerId      String
-  customer        User        @relation(fields: [customerId], references: [id])
+  customer        User        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   providerId      String
-  provider        Provider    @relation(fields: [providerId], references: [id])
-  subtotal        Int
-  deliveryFee     Int
-  discount        Int
-  totalAmount     Int
-  status          OrderStatus
+  provider        Provider    @relation(fields: [providerId], references: [id], onDelete: Restrict)
+  subtotal        Decimal
+  deliveryFee     Decimal
+  discount        Decimal
+  totalAmount     Decimal
+  status          OrderStatus @default(PLACED)
   deliveryAddress String
   contactNumber   String
   createdAt       DateTime    @default(now())
@@ -157,9 +159,9 @@ model Order {
 model OrderItem {
   id       String  @id @default(uuid())
   orderId  String
-  order    Order   @relation(fields: [orderId], references: [id])
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   mealId   String
-  meal     Meal    @relation(fields: [mealId], references: [id])
+  meal     Meal    @relation(fields: [mealId], references: [id], onDelete: Restrict)
   quantity Int
   price    Decimal
   name     String
@@ -168,9 +170,9 @@ model OrderItem {
 model Review {
   id        String  @id @default(uuid())
   userId    String
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   mealId    String
-  meal      Meal    @relation(fields: [mealId], references: [id])
+  meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
   comment   String
   starCount Decimal
 }
