@@ -53,7 +53,10 @@ const editMeal = async(
     updatedData: Prisma.MealUncheckedUpdateInput
 )=>{
     const result = await prisma.meal.update({
-        where: {id},
+        where: {
+            id: id,
+            isDeleted: false
+        },
         data: updatedData
     })
 
@@ -65,7 +68,9 @@ const softDeleteMeal = async(
     updatedData: Prisma.MealUncheckedUpdateInput
 )=>{
     const result = await prisma.meal.update({
-        where: {id},
+        where: {
+            id: id
+        },
         data: updatedData
     })
 

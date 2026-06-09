@@ -112,11 +112,12 @@ model Provider {
 }
 
 model Category {
-  id    String  @id @default(uuid())
-  name  String  @unique
-  slug  String  @unique
-  logo  String?
-  meals Meal[]
+  id        String  @id @default(uuid())
+  name      String  @unique
+  slug      String  @unique
+  logo      String?
+  isDeleted Boolean @default(false)
+  meals     Meal[]
 }
 
 model Meal {
@@ -153,6 +154,7 @@ model Order {
   deliveryAddress String
   contactNumber   String
   createdAt       DateTime    @default(now())
+  isDeleted       Boolean     @default(false)
   orderItems      OrderItem[]
 }
 
@@ -175,4 +177,5 @@ model Review {
   meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
   comment   String
   starCount Decimal
+  isDeleted Boolean @default(false)
 }
