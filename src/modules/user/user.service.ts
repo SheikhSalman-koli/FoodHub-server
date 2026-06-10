@@ -14,7 +14,7 @@ const getAllUsers =async () => {
     return result
 }
 
-const updateUser = async(id: string, data: {status?: string|undefined, isDeleted?: boolean|undefined}) => {
+const updateUser = async(id: string, data: {status?: string, isDeleted?: boolean}) => {
     const updateData: Prisma.UserUpdateInput = {}
     if (typeof data.status !== 'undefined') {
         // convert/validate incoming string to the generated enum type

@@ -33,11 +33,11 @@ const categoriesData = [
 ]
 
 const authorData = {
-    "authoremail": "salmansheikh@gmail.com",
-    "restaurantName": "Kacchi Dine",
-    "tagline": "The Ultimate Royalty on Your Plate",
-    "location": "Dhanmondi, Dhaka",
-    "logo": "https://i.ibb.co.com/fVyR9Dk6/shourav-sheikh-j9low-Ncnl04-unsplash.jpg"
+    "authoremail": "tawfa@gmail.com",
+    "restaurantName": "Chillox Dhanmondi",
+    "tagline": "Slayer of Hunger, Master of Juicy Burgers!",
+    "location": "House 45, Road 16 (Old 27), Dhanmondi, Dhaka",
+    "logo": "https://i.ibb.co.com/kg5vqjkP/sama-hosseini-a-Ki-W1w-N0eks-unsplash.jpg"
 }
 
 async function main() {
@@ -45,9 +45,9 @@ async function main() {
         console.log(`Start seeding categories...`)
 
         // createMany ব্যবহার করলে একবারে সব ডাটা ইনসার্ট হয়ে যাবে
-        await prisma.provider.create({
-            data: authorData
-        })
+        // await prisma.provider.create({
+        //     data: authorData
+        // })
 
         console.log(`Seeding finished.`)
     } catch (error) {

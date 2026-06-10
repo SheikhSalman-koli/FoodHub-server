@@ -32,17 +32,17 @@ enum userStatus {
 }
 
 model User {
-  id            String    @id @default(uuid())
+  id            String     @id @default(uuid())
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean    @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   sessions      Session[]
   accounts      Account[]
-  isDeleted     Boolean   @default(false)
-  status        userStatus    @default(ACTIVATE)
+  isDeleted     Boolean    @default(false)
+  status        userStatus @default(ACTIVATE)
 
   provider Provider?
   orders   Order[]
@@ -154,7 +154,6 @@ model Order {
   provider        Provider    @relation(fields: [providerId], references: [id], onDelete: Restrict)
   subtotal        Decimal
   deliveryFee     Decimal
-  discount        Decimal
   totalAmount     Decimal
   status          OrderStatus @default(PLACED)
   deliveryAddress String
@@ -165,14 +164,15 @@ model Order {
 }
 
 model OrderItem {
-  id       String  @id @default(uuid())
+  id       String   @id @default(uuid())
   orderId  String
-  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   mealId   String
-  meal     Meal    @relation(fields: [mealId], references: [id], onDelete: Restrict)
+  meal     Meal     @relation(fields: [mealId], references: [id], onDelete: Restrict)
   quantity Int
   price    Decimal
   name     String
+  discount Decimal? @default(0)
 }
 
 model Review {
