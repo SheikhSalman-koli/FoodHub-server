@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node"
 import { auth } from "./lib/auth"
 import { categoryRouter } from "./modules/category/category.router"
 import { mealRouter } from "./modules/meal/meal.router"
+import { userRouter } from "./modules/user/user.router"
 const app: Application = express()
 
 app.use(cors({
@@ -18,5 +19,7 @@ app.use(express.json())
 app.use('/category', categoryRouter)
 
 app.use('/meal', mealRouter)
+
+app.use('/user', userRouter)
 
 export default app

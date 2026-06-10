@@ -26,6 +26,11 @@ enum OrderStatus {
   DELIVERED
 }
 
+enum userStatus {
+  ACTIVATE
+  SUSPENDE
+}
+
 model User {
   id            String    @id @default(uuid())
   name          String
@@ -37,6 +42,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   isDeleted     Boolean   @default(false)
+  status        userStatus    @default(ACTIVATE)
 
   provider Provider?
   orders   Order[]
