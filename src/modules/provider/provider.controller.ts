@@ -34,9 +34,26 @@ const getAllProvider = async(req: Request, res: Response) => {
         }
 }
 
+const getSingleProvider = async(req: Request<{id: string}>, res: Response) => {
+      try {
+            const { id } = req?.params
+            const result = await providerService.getSingleProvider(id)
+            res.status(200).json({
+                message: "provider retrieved successfully!",
+                data: result
+            })
+        } catch (error: any) {
+            res.status(400).json({
+                message: "failed to retrieve provider!",
+                error: error.message
+            })
+        }
+}
+
 
 
 export const providerController = {
     createProvider,
     getAllProvider,
+    getSingleProvider
 }

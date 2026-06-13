@@ -142,6 +142,9 @@ model Meal {
   price       Decimal
   isDeleted   Boolean @default(false)
 
+  // work for discount here and then calculate the discount price in the order item and change business logic also
+  discount    Int? @default(0)
+
   orderItems OrderItem[]
   reviews    Review[]
 }
@@ -161,6 +164,7 @@ model Order {
   createdAt       DateTime    @default(now())
   isDeleted       Boolean     @default(false)
   orderItems      OrderItem[]
+  reviews         Review[]
 }
 
 model OrderItem {
@@ -172,16 +176,37 @@ model OrderItem {
   quantity Int
   price    Decimal
   name     String
-  discount Decimal? @default(0)
+  discount Int? @default(0)
 }
 
+// model Review {
+//   id        String  @id @default(uuid())
+//   userId    String
+//   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   mealId    String
+//   meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+//   comment   String
+//   starCount Decimal
+//   isDeleted Boolean @default(false)
+// }
+
 model Review {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  customerId    String
+  user      User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   mealId    String
-  meal      Meal    @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   comment   String
-  starCount Decimal
-  isDeleted Boolean @default(false)
+ 
+  starCount Int      
+  
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now()) 
+
+  //  সিকিউরিটি: এক অর্ডারের একই খাবারে ইউজার যেন ডাবল রিভিউ দিতে না পারে
+  @@unique([customerId, orderId, mealId]) 
 }

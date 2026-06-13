@@ -7,6 +7,7 @@ import { mealRouter } from "./modules/meal/meal.router"
 import { userRouter } from "./modules/user/user.router"
 import { providerRouter } from "./modules/provider/provider.route"
 import { orderRouter } from "./modules/order/order.router"
+import { reviewRouter } from "./modules/review/review.router"
 const app: Application = express()
 
 app.use(cors({
@@ -27,5 +28,7 @@ app.use('/user', userRouter)
 app.use('/provider', providerRouter)
 
 app.use('/order', orderRouter)
+
+app.use('/review', reviewRouter)
 
 export default app

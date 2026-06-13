@@ -22,8 +22,8 @@ const getAllUsers = async(req: Request, res: Response) => {
 const updateUser = async(req: Request<{id: string}>, res: Response) => {
     try {
         const { id } = req.params
-        const {  status, isDeleted } = req.body   
-        const data = {status, isDeleted} 
+        const {  status, isDeleted, role } = req.body   
+        const data = {status, isDeleted, role} 
         const result = await userService.updateUser(id, data)
         res.status(200).json({
             message: "user updated successfully!",

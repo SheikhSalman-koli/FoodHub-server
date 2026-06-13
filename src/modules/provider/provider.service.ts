@@ -17,10 +17,19 @@ const createProvider = async (providerData: CreateProviderInput) => {
 
 
 const getAllProvider = async ()=> {
-    const result = await prisma.provider.findMany({
+    const result = await prisma.provider.findMany()
+    return result
+}
+
+const getSingleProvider = async (id: string) => {
+    const result = await prisma.provider.findUnique({
+        where: {
+            id
+        },
         include: {
             meals: true
         }
+
     })
     return result
 }
@@ -29,5 +38,6 @@ const getAllProvider = async ()=> {
 
 export const providerService = {
     getAllProvider,
-    createProvider
+    createProvider,
+    getSingleProvider
 }

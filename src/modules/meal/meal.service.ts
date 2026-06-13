@@ -32,6 +32,9 @@ const getemeals = async () => {
         where: {
             isDeleted: false
         },
+        include: {
+           reviews: true
+        }
     })
 
     return result
@@ -42,6 +45,9 @@ const getSingleMeal = async (id: string) => {
         where: {
             id,
             isDeleted: false
+        },
+        include: {
+           reviews: true
         }
     })
 

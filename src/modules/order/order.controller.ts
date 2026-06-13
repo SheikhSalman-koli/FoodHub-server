@@ -20,7 +20,15 @@ const createOrder = async(req: Request, res: Response) => {
 
 const getAllOrders = async(req: Request, res: Response) => {
       try {
-            const result = await orderService.getAllOrders()
+        console.log("user id from req", req?.user)
+            const { id, role, email} = req?.user?? {}
+            const data = {
+                id: id as string,
+                role: role as string,
+                email: email as string
+            }
+
+            const result = await orderService.getAllOrders(data)
             res.status(200).json({
                 message: "order retrieved successfully!",
                 data: result

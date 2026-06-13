@@ -1,4 +1,4 @@
-import { Prisma, userStatus } from "../../../generated/prisma/client"
+import { Prisma, userStatus, Role } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
 
 
@@ -14,7 +14,7 @@ const getAllUsers =async () => {
     return result
 }
 
-const updateUser = async(id: string, data: {status?: string, isDeleted?: boolean}) => {
+const updateUser = async(id: string, data: {status?: string, isDeleted?: boolean, role?: string}) => {
     const updateData: Prisma.UserUpdateInput = {}
     if (typeof data.status !== 'undefined') {
         // convert/validate incoming string to the generated enum type
@@ -22,6 +22,9 @@ const updateUser = async(id: string, data: {status?: string, isDeleted?: boolean
     }
     if (typeof data.isDeleted !== 'undefined') {
         updateData.isDeleted = data.isDeleted
+    }
+    if (typeof data.role !== 'undefined') {
+        updateData.role = data.role as unknown as Role
     }
 
     const result = await prisma.user.update({
