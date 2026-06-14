@@ -8,10 +8,11 @@ import { userRouter } from "./modules/user/user.router"
 import { providerRouter } from "./modules/provider/provider.route"
 import { orderRouter } from "./modules/order/order.router"
 import { reviewRouter } from "./modules/review/review.router"
+
 const app: Application = express()
 
 app.use(cors({
-    origin: process.env.APP_URL || 'http//localhost:5000',
+    origin: process.env.APP_URL || 'http://localhost:5000',
     credentials: true
 }))
 

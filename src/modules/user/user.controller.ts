@@ -3,7 +3,7 @@ import { userService } from "./user.service"
 
 
 
-const getAllUsers = async(req: Request, res: Response) => {
+const getAllUsers = async (req: Request, res: Response) => {
     try {
         const result = await userService.getAllUsers()
         res.status(200).json({
@@ -19,14 +19,22 @@ const getAllUsers = async(req: Request, res: Response) => {
 }
 
 
-const updateUser = async(req: Request<{id: string}>, res: Response) => {
+const updateCustomerProfile = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params
-        const {  status, isDeleted, role } = req.body   
-        const data = {status, isDeleted, role} 
-        const result = await userService.updateUser(id, data)
+
+        const user = req?.user
+        if (!user) {
+            return res.status(401).json({
+                message: "User not authenticated"
+            })
+        }
+        const { id } = user
+        const { name, image, phone } = req.body
+        const updatedDate = { name, image, phone }
+
+        const result = await userService.updateCustomerProfile(id, updatedDate)
         res.status(200).json({
-            message: "user updated successfully!",
+            message: "Profile updated successfully!",
             data: result
         })
     } catch (error: any) {
@@ -37,8 +45,29 @@ const updateUser = async(req: Request<{id: string}>, res: Response) => {
     }
 }
 
+const updateUserStatus = async (req: Request<{ id: string }>, res: Response) => {
+    try {
+        const { id } = req?.params;
+        const { status } = req?.body;
+
+        const result = await userService.updateUserStatus(id, status);
+
+        res.status(200).json({ 
+            success: true, 
+            message: `User status updated to ${status}!`, 
+            data: result 
+        });
+    } catch (error: any) {
+        res.status(400).json({
+            message: "failed to update user!",
+            error: error.message
+        })
+    }
+};
+
 
 export const userController = {
     getAllUsers,
-    updateUser
+    updateCustomerProfile,
+    updateUserStatus
 }

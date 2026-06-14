@@ -1,4 +1,6 @@
+import { OrderStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma"
+import { userRole } from "../../middlewares/auth";
 
 type OrderItemInput = {
     mealId: string,
@@ -132,8 +134,44 @@ const getAllOrders = async (data: { id: string, role: string , email: string}) =
 }
 
 
+const updateOrderStatus = async(orderId:string, role: string, userId: string ,status: OrderStatus)=> {
+
+    if(role === userRole.CUSTOMER){
+        const getCustomerId = await prisma.order.findUnique({
+            where:{
+                id: orderId
+            },
+            select: {
+                customerId: true
+            }
+        })
+
+        const isOrderOwner = getCustomerId?.customerId === userId
+
+        if(!isOrderOwner) throw new Error('you are the not owner of the order!')
+        
+        const result = await prisma.order.update({
+            where: {
+                id: orderId
+            },
+            data: {
+                status: OrderStatus.CANCELLED
+            }
+        })
+
+        return result
+
+    }
+    
+   if(role === userRole.PROVIDER){
+     
+   }
+}
+
+
 
 export const orderService = {
     createOrder,
     getAllOrders,
+    updateOrderStatus
 }

@@ -24,10 +24,15 @@ const getAllProvider = async ()=> {
 const getSingleProvider = async (id: string) => {
     const result = await prisma.provider.findUnique({
         where: {
-            id
+            id,
+            isDeleted: false
         },
         include: {
-            meals: true
+            meals: {
+               where: {
+                isDeleted: false
+               } 
+            }
         }
 
     })

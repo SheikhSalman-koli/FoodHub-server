@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import { orderService } from "./order.service";
 
 
-const createOrder = async(req: Request, res: Response) => {
+const createOrder = async (req: Request, res: Response) => {
     try {
         const body = req.body
         const result = await orderService.createOrder(body)
-        res.status(200).json({  
+        res.status(200).json({
             message: "order created successfully!",
             data: result
         })
@@ -15,30 +15,56 @@ const createOrder = async(req: Request, res: Response) => {
             message: "failed to create order!",
             error: error.message
         })
-    }   
+    }
 }
 
-const getAllOrders = async(req: Request, res: Response) => {
-      try {
-        console.log("user id from req", req?.user)
-            const { id, role, email} = req?.user?? {}
-            const data = {
-                id: id as string,
-                role: role as string,
-                email: email as string
-            }
+const getAllOrders = async (req: Request, res: Response) => {
+    try {
+        const { id, role, email } = req?.user ?? {}
+        const data = {
+            id: id as string,
+            role: role as string,
+            email: email as string
+        }
 
-            const result = await orderService.getAllOrders(data)
-            res.status(200).json({
-                message: "order retrieved successfully!",
-                data: result
-            })
-        } catch (error: any) {
-            res.status(400).json({
-                message: "failed to retrieve order!",
-                error: error.message
+        const result = await orderService.getAllOrders(data)
+        console.log(result);
+        res.status(200).json({
+            message: "order retrieved successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(400).json({
+            message: "failed to retrieve order!",
+            error: error.message
+        })
+    }
+}
+
+const updateOrderStatus = async (req: Request<{ orderId: string }>, res: Response) => {
+    try {
+        const { orderId } = req.params
+        const { status } = req?.body
+
+        const user = req?.user
+        if (!user) {
+            return res.status(401).json({
+                message: "User not authenticated"
             })
         }
+        const {role, id} = user
+
+        const result = await orderService.updateOrderStatus(orderId,role,id, status)
+        res.status(200).json({
+            message: "order status updated successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(400).json({
+            message: "failed to update order status!",
+            error: error.message
+        })
+    }
 }
 
 
@@ -46,4 +72,5 @@ const getAllOrders = async(req: Request, res: Response) => {
 export const orderController = {
     createOrder,
     getAllOrders,
+    updateOrderStatus
 }
