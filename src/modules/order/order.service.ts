@@ -89,7 +89,7 @@ export const createOrder = async (orderData: CreateOrderInput) => {
 };
 
 
-const getAllOrders = async (data: { id: string, role: string , email: string}) => {
+const getAllOrders = async (data: { id: string, role: string, email: string }) => {
     const { id, role, email } = data;
     // check role, if provider then filter by providerId, if customer then filter by customerId, if admin then return all orders
     if (role === 'ADMIN') {
@@ -134,38 +134,81 @@ const getAllOrders = async (data: { id: string, role: string , email: string}) =
 }
 
 
-const updateOrderStatus = async(orderId:string, role: string, userId: string ,status: OrderStatus)=> {
+const updateOrderStatus = async (orderId: string, role: string, userId: string, userEmail: string, status: OrderStatus) => {
 
-    if(role === userRole.CUSTOMER){
-        const getCustomerId = await prisma.order.findUnique({
-            where:{
-                id: orderId
-            },
-            select: {
-                customerId: true
-            }
-        })
+    const getOrderInfo = await prisma.order.findUnique({
+        where: {
+            id: orderId
+        },
+        select: {
+            customerId: true,
+            providerId: true,
+            status: true
+        }
+    })
 
-        const isOrderOwner = getCustomerId?.customerId === userId
+    if (!getOrderInfo) {
+        throw new Error("Order not found!");
+    }
 
-        if(!isOrderOwner) throw new Error('you are the not owner of the order!')
-        
-        const result = await prisma.order.update({
-            where: {
-                id: orderId
-            },
-            data: {
-                status: OrderStatus.CANCELLED
-            }
-        })
+    if (getOrderInfo.status === "DELIVERED" || getOrderInfo.status === "CANCELLED") {
+        throw new Error(`This order is already ${getOrderInfo.status.toLowerCase()} and cannot be modified further!`);
+    }
+// -------------------------------------------
+    if (role === userRole.CUSTOMER) {
 
-        return result
+        if (status !== "CANCELLED") {
+            throw new Error("Customers are only allowed to cancel orders.");
+        }
+
+        if (getOrderInfo?.status !== "PLACED") {
+            throw new Error("You cannot cancel an order that is already PREPARING or READY.");
+        }
+
+        const isOrderOwner = getOrderInfo?.customerId === userId
+
+        if (!isOrderOwner) throw new Error('you are the not owner of the order!')
 
     }
-    
-   if(role === userRole.PROVIDER){
-     
-   }
+// -----------------------------------
+    if (role === userRole.PROVIDER) {
+
+        const allowedProviderStatuses: OrderStatus[] = ["PREPARING", "READY", "DELIVERED"];
+
+        if (!allowedProviderStatuses.includes(status)) {
+            throw new Error("Providers are not allowed to set this status.");
+        }
+
+        const getProviderId = await prisma.provider.findUnique({
+            where: {
+                authoremail: userEmail
+            },
+            select: {
+                id: true
+            }
+        })
+
+        if (!getProviderId) {
+        throw new Error("Provider profile not found!");
+    }
+
+        const isRestaurantOwner = getProviderId?.id === getOrderInfo.providerId
+
+        if (!isRestaurantOwner) throw new Error('you are not the actual restaurant owner!')
+    }
+// -------------------------------------------
+
+    const result = await prisma.order.update({
+        where: {
+            id: orderId
+        },
+        data: {
+            status
+        }
+    })
+
+    return result
+
 }
 
 

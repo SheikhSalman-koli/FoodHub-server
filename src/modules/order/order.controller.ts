@@ -28,7 +28,7 @@ const getAllOrders = async (req: Request, res: Response) => {
         }
 
         const result = await orderService.getAllOrders(data)
-        console.log(result);
+        // console.log(result);
         res.status(200).json({
             message: "order retrieved successfully!",
             data: result
@@ -52,9 +52,9 @@ const updateOrderStatus = async (req: Request<{ orderId: string }>, res: Respons
                 message: "User not authenticated"
             })
         }
-        const {role, id} = user
+        const {role, id, email} = user
 
-        const result = await orderService.updateOrderStatus(orderId,role,id, status)
+        const result = await orderService.updateOrderStatus(orderId,role,id, email, status)
         res.status(200).json({
             message: "order status updated successfully!",
             data: result
