@@ -1,6 +1,9 @@
+import bcrypt from "bcryptjs"
 import { Prisma, userStatus, Role } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
 import { userRole } from "../../middlewares/auth"
+import {auth as betterAuth} from '../../lib/auth'
+import { hashPassword, verifyPassword } from "better-auth/crypto"
 
 
 const getAllUsers = async () => {
@@ -16,11 +19,21 @@ const getAllUsers = async () => {
 }
 
 
+const updateProfile = async (userId: string , data: Prisma.UserUncheckedUpdateInput) => {
 
-const updateCustomerProfile = async (id: string , data: Prisma.UserUncheckedUpdateInput) => {
+    const isExist = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    })
+
+    if(!isExist){
+        throw new Error('User not exist!')
+    }
+
     const result = await prisma.user.update({
         where: {
-            id: id
+            id: userId
         },
         data: data
     })
@@ -30,7 +43,6 @@ const updateCustomerProfile = async (id: string , data: Prisma.UserUncheckedUpda
 // services/user.service.ts
 
 const updateUserStatus = async (id: string, status: userStatus) => {
-
     if (!status) {
         throw new Error("Status is required, you can update just Status!.");
     }
@@ -105,8 +117,71 @@ const updateUserStatus = async (id: string, status: userStatus) => {
 };
 
 
+
+const changePassword = async (payload: { userId: string; currentSessionId: string; currentPassword: string; newPassword: string }) => {
+  const { userId, currentSessionId, currentPassword, newPassword } = payload;
+
+  if (!currentPassword || !newPassword) {
+    throw new Error("Both current and new passwords are required!");
+  }
+
+  if (currentPassword === newPassword) {
+    throw new Error("New password cannot be the same as current password!");
+  }
+
+  const userAccount = await prisma.account.findFirst({
+    where: { 
+      userId: userId 
+    },
+    select: {
+      id: true,
+      password: true 
+    }
+  });
+
+
+
+  if (!userAccount || !userAccount.password) {
+    throw new Error("This account doesn't have a password set. (Logged in via Google?)");
+  }
+
+ const isMatch = await verifyPassword({
+    password: currentPassword, // ইউজারের দেওয়া পাসওয়ার্ড
+    hash: userAccount.password, // ডাটাবেজের Scrypt হ্যাশ
+  });
+  if (!isMatch) {
+    throw new Error("Your current password is incorrect!");
+  }
+
+const hashedNewPassword = await hashPassword(newPassword);
+
+await prisma.$transaction(async (tx) => {
+  await tx.account.update({
+    where: { 
+      id: userAccount.id 
+    },
+    data: {
+      password: hashedNewPassword
+    }
+  });
+
+  await tx.session.deleteMany({
+    where: {
+      userId: userId,
+      id: {
+        not: currentSessionId 
+      }
+    }
+  });
+  
+});
+
+};
+
+
 export const userService = {
     getAllUsers,
-    updateCustomerProfile,
-    updateUserStatus
+    updateProfile,
+    updateUserStatus,
+    changePassword
 }

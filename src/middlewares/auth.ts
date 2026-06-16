@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {auth as betterAuth} from '../lib/auth'
+import { auth as betterAuth } from '../lib/auth'
 
 export enum userRole {
     CUSTOMER = 'CUSTOMER',
@@ -16,6 +16,16 @@ declare global {
                 name: string;
                 role: string;
                 emailVerified: boolean
+            }
+        }
+    }
+}
+
+declare global {
+    namespace Express {
+        interface Request {
+            session?: {
+                id: string;
             }
         }
     }
@@ -42,14 +52,20 @@ const auth = (...roles: userRole[]) => {
                 })
             }
 
+            // console.log(session);
+
             req.user = {
                 id: session?.user.id,
                 email: session?.user.email,
                 name: session?.user.name,
                 role: session?.user.role as string,
                 emailVerified: session?.user.emailVerified
-            }
+            };
 
+            req.session = {
+                id: session?.session.id
+            }
+          
 
             if (roles?.length && !roles.includes(req?.user?.role as userRole)) {
                 return res.status(403).json({
