@@ -143,8 +143,6 @@ model Meal {
   orderCount  Int     @default(0)
   price       Decimal
   isDeleted   Boolean @default(false)
-
-  // work for discount here and then calculate the discount price in the order item and change business logic also
   discount    Int? @default(0)
 
   orderItems OrderItem[]

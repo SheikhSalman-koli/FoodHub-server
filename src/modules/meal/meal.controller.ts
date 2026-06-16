@@ -22,8 +22,8 @@ const createmeal = async (req: Request, res: Response) => {
 
 const getemeals = async (req: Request, res: Response) => {
     try {
-
-        const result = await mealService.getemeals()
+        
+        const result = await mealService.getemeals(req?.query)
         res.status(200).json({
             message: "meal retrived successfully!",
             data: result
@@ -66,8 +66,14 @@ const editMeal = async (req: Request<{ id: string }>, res: Response) => {
     try {
         const { id } = req?.params
         const updatedData = req?.body
+        const user = req?.user
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found!",
+            })
+        }
         // console.log(id, updatedData);
-        const result = await mealService.editMeal(id, updatedData)
+        const result = await mealService.editMeal(id, updatedData, user.email)
         res.status(200).json({
             message: "meal edited successfully!",
             data: result
@@ -86,8 +92,14 @@ const softDeleteMeal = async (req: Request<{ id: string }>, res: Response) => {
     try {
         const { id } = req?.params
         const updatedData = req?.body
+        const user = req?.user
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found!",
+            })
+        }
         // console.log(id, updatedData);
-        const result = await mealService.softDeleteMeal(id, updatedData)
+        const result = await mealService.softDeleteMeal(id, updatedData, user.email)
         res.status(200).json({
             message: "meal deleted successfully!",
             data: result

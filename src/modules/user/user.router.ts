@@ -4,7 +4,7 @@ import auth, { userRole } from "../../middlewares/auth"
 
 const router = express.Router()
 
-router.get('/api/v1', userController.getAllUsers)
+router.get('/api/v1', auth(userRole.ADMIN), userController.getAllUsers)
 
 router.put('/update-profile/api/v1/', auth(userRole.CUSTOMER), userController.updateCustomerProfile)
 
