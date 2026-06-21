@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.post('/api/v1',auth(userRole.PROVIDER), mealController.createmeal)
 
-router.get('/api/v1', auth(userRole.CUSTOMER), mealController.getemeals)
+router.get('/api/v1',  mealController.getemeals)
 
 router.get('/api/v1/single/:id', mealController.getSingleMeal)
 

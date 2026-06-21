@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
 import nodemailer from "nodemailer";
+import { Request } from "express";
 
 // Create a transporter using SMTP
 const transporter = nodemailer.createTransport({
@@ -20,20 +21,50 @@ export const auth = betterAuth({
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
   trustedOrigins: [
-    `${process.env.API_URL}`,
+    `${process.env.APP_URL}`,
   ],
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true
+    requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+
+    passwordReset: {
+      enabled: true,
+    },
+
+   sendResetPassword: async ({ user, url, token }, request) => {
+    const secureResetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
+    console.log(token);
+  await transporter.sendMail({
+    from: '"Prisma Blog" <prismablog@gmail.com>',
+    to: user.email,
+    subject: "Reset your password",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+          <h2>পাসওয়ার্ড রিসেট করুন</h2>
+          <p>হ্যালো ${user.name || "ইউজার"},</p>
+          <p>আপনার পাসওয়ার্ডটি রিসেট করার জন্য নিচের বাটনে ক্লিক করুন:</p>
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="${secureResetUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="font-size: 12px; color: #6b7280;">লিংকটি কাজ না করলে এটি ব্রাউজারে পেস্ট করুন: <br/> 
+          <a href="${secureResetUrl}">${secureResetUrl}</a></p>
+        </div>
+    `,
+  });
+},
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
-        const verifyEmailUrl = `${process.env.APP_URL}/verify-email?token=${token}`
-        const info = await transporter.sendMail({
-          from: '"prisma" <prismablog@gmail.com>',
+        
+        const verifyEmailUrl = `${process.env.APP_URL}/verify-email?token=${token}&callbackUrl=/`;
+        // const verifyEmailUrl = `http://localhost:3000/verify-email?token=${token}&callbackUrl=/`;
+
+        await transporter.sendMail({
+          from: '"Prisma Blog" <prismablog@gmail.com>',
           to: user?.email,
           subject: "Please Verify your email",
           html: `<div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;background:#ffffff;padding:24px;border-radius:8px;border:1px solid #e5e7eb;">
@@ -68,7 +99,7 @@ export const auth = betterAuth({
         </p>
 
         <p style="word-break:break-all;">
-          <a href="${url}">${url}</a>
+          <a href="${verifyEmailUrl}">${verifyEmailUrl}</a> 
         </p>
 
         <hr style="margin:24px 0;" />
@@ -85,10 +116,12 @@ export const auth = betterAuth({
         });
 
       } catch (error: any) {
-        throw new Error(error.message)
+        console.error("Email sending failed:", error);
+        throw new Error(error.message);
       }
     },
   },
+
 
   user: {
     additionalFields: {
@@ -111,6 +144,11 @@ export const auth = betterAuth({
         type: "string",
         defaultValue: "ACTIVATE",
         required: false
+      },
+      deliveryAddress: {
+        type: "string",
+        defaultValue: "",
+        required: false
       }
     }
   },
@@ -122,3 +160,5 @@ export const auth = betterAuth({
     },
   }
 });
+
+

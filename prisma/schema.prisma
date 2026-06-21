@@ -109,7 +109,7 @@ model Provider {
   authoremail    String  @unique
   author         User    @relation(fields: [authoremail], references: [email], onDelete: Cascade)
   restaurantName String
-  tagline        String
+  tagline        String?
   location       String
   logo           String?
   isDeleted      Boolean @default(false)

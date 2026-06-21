@@ -7,7 +7,8 @@ const createProvider = async(req: Request, res: Response) => {
     try {
         const body = req.body
         const result = await providerService.createProvider(body)
-        res.status(200).json({  
+        res.status(200).json({ 
+            success: true, 
             message: "provider created successfully!",
             data: result
         })
