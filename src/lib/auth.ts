@@ -3,13 +3,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
 import nodemailer from "nodemailer";
-import { Request } from "express";
 
 // Create a transporter using SMTP
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+  secure: false, 
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -32,14 +31,14 @@ export const auth = betterAuth({
       enabled: true,
     },
 
-   sendResetPassword: async ({ user, url, token }, request) => {
-    const secureResetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
-    console.log(token);
-  await transporter.sendMail({
-    from: '"Prisma Blog" <prismablog@gmail.com>',
-    to: user.email,
-    subject: "Reset your password",
-    html: `
+    sendResetPassword: async ({ user, url, token }, request) => {
+      const secureResetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
+      console.log(token);
+      await transporter.sendMail({
+        from: '"Prisma Blog" <prismablog@gmail.com>',
+        to: user.email,
+        subject: "Reset your password",
+        html: `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
           <h2>পাসওয়ার্ড রিসেট করুন</h2>
           <p>হ্যালো ${user.name || "ইউজার"},</p>
@@ -51,15 +50,16 @@ export const auth = betterAuth({
           <a href="${secureResetUrl}">${secureResetUrl}</a></p>
         </div>
     `,
-  });
-},
+      });
+    },
   },
+
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
-        
+
         const verifyEmailUrl = `${process.env.APP_URL}/verify-email?token=${token}&callbackUrl=/`;
         // const verifyEmailUrl = `http://localhost:3000/verify-email?token=${token}&callbackUrl=/`;
 
@@ -122,7 +122,6 @@ export const auth = betterAuth({
     },
   },
 
-
   user: {
     additionalFields: {
       role: {
@@ -159,6 +158,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   }
+
 });
 
 

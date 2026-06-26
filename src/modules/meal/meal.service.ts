@@ -94,11 +94,6 @@ const getemeals = async (query: Record<string, unknown>) => {
             AND: andConditions
         },
         orderBy: orderByCondition,
-        include: {
-            reviews: true,
-            category: true,
-            provider: true
-        }
     })
 
     return result
@@ -111,11 +106,36 @@ const getSingleMeal = async (id: string) => {
             isDeleted: false
         },
         include: {
-            reviews: true
+            reviews: {
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                        }
+                    }
+                }
+            }
         }
     })
 
-    return result
+    const similarMeals = await prisma.meal.findMany({
+        where: {
+            categoryId: result?.categoryId, 
+            id: { not: id },          
+            isDeleted: false
+        },
+        take: 4, 
+        orderBy: {
+            orderCount: 'desc' 
+        }
+    });
+
+    return {
+        ...result,
+        similarMeals
+    }
 }
 
 

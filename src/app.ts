@@ -22,13 +22,13 @@ app.use(express.json())
 
 app.use('/category', categoryRouter)
 
-app.use('/meal', mealRouter)
+app.use('/api/v1', mealRouter)
 
 app.use('/user', userRouter)
 
-app.use('/provider', providerRouter)
+app.use('/api/v1', providerRouter)
 
-app.use('/order', orderRouter)
+app.use('/api/v1', orderRouter)
 
 app.use('/review', reviewRouter)
 

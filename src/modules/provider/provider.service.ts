@@ -55,7 +55,11 @@ const createProvider = async (providerData: CreateProviderInput) => {
 
 
 const getAllProvider = async () => {
-    const result = await prisma.provider.findMany()
+    const result = await prisma.provider.findMany({
+        where: {
+            isDeleted: false
+        },
+    })
     return result
 }
 

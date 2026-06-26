@@ -22,14 +22,14 @@ type CreateOrderInput = {
 
 export const createOrder = async (orderData: CreateOrderInput) => {
     const { customerId, providerId, deliveryAddress, contactNumber, deliveryFee, orderItems } = orderData;
+    // console.log( customerId, providerId, deliveryAddress, contactNumber, deliveryFee, orderItems);
 
+    //  রিডিউসের রেজাল্ট undefined হলে ডিফল্ট ০ বসে যাবে
     const subtotal = orderItems?.reduce((sum: number, item: OrderItemInput) => {
-        const price = Number(item?.price) || 0;
-        const discountPercent = Number(item?.discount) || 0;
-        const discountAmount = price * (discountPercent / 100);
-        const itemTotal = (price - discountAmount) * item?.quantity;
-        return sum + itemTotal;
-    }, 0);
+        const finalPrice = Number(item?.price) || 0;
+        const quantity = Number(item?.quantity) || 0;
+        return sum + (finalPrice * quantity);
+    }, 0) || 0;
 
     const totalAmount = subtotal + Number(deliveryFee);
 
@@ -154,7 +154,7 @@ const updateOrderStatus = async (orderId: string, role: string, userId: string, 
     if (getOrderInfo.status === "DELIVERED" || getOrderInfo.status === "CANCELLED") {
         throw new Error(`This order is already ${getOrderInfo.status.toLowerCase()} and cannot be modified further!`);
     }
-// -------------------------------------------
+    // -------------------------------------------
     if (role === userRole.CUSTOMER) {
 
         if (status !== "CANCELLED") {
@@ -170,7 +170,7 @@ const updateOrderStatus = async (orderId: string, role: string, userId: string, 
         if (!isOrderOwner) throw new Error('you are the not owner of the order!')
 
     }
-// -----------------------------------
+    // -----------------------------------
     if (role === userRole.PROVIDER) {
 
         const allowedProviderStatuses: OrderStatus[] = ["PREPARING", "READY", "DELIVERED"];
@@ -189,14 +189,14 @@ const updateOrderStatus = async (orderId: string, role: string, userId: string, 
         })
 
         if (!getProviderId) {
-        throw new Error("Provider profile not found!");
-    }
+            throw new Error("Provider profile not found!");
+        }
 
         const isRestaurantOwner = getProviderId?.id === getOrderInfo.providerId
 
         if (!isRestaurantOwner) throw new Error('you are not the actual restaurant owner!')
     }
-// -------------------------------------------
+    // -------------------------------------------
 
     const result = await prisma.order.update({
         where: {

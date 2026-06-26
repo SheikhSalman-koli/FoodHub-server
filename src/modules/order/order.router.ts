@@ -5,11 +5,11 @@ import auth, { userRole } from "../../middlewares/auth"
 
 const router = express.Router()
 
-router.post('/api/v1', orderController.createOrder)
+router.post('/order', orderController.createOrder)
 
-router.get('/api/v1', auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.getAllOrders)
+router.get('/order', auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.getAllOrders)
 
-router.patch('/update-status/api/v1/:orderId', auth(userRole.CUSTOMER, userRole.PROVIDER), orderController.updateOrderStatus)
+router.patch('/update-status/order/:orderId', auth(userRole.CUSTOMER, userRole.PROVIDER), orderController.updateOrderStatus)
 
 
 export const orderRouter: Router = router
