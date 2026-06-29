@@ -29,17 +29,17 @@ const createmeal = async (body: mealBody) => {
 
 const getemeals = async (query: Record<string, unknown>) => {
 
-    const { searchTerm, category, restaurantName, minPrice, maxPrice, sortBy, sortOrder } = query
+    const { search, category, restaurantName, minPrice, maxPrice, sortBy, sortOrder } = query
 
     const andConditions: Prisma.MealWhereInput[] = [
         { isDeleted: false }
     ]
 
-    if (searchTerm) {
+    if (search) {
         andConditions.push({
             OR: [
-                { name: { contains: searchTerm as string, mode: "insensitive" } },
-                { description: { contains: searchTerm as string, mode: "insensitive" } },
+                { name: { contains: search as string, mode: "insensitive" } },
+                { description: { contains: search as string, mode: "insensitive" } },
             ]
         })
     }

@@ -1,18 +1,19 @@
 import express, { Router } from "express";
 import { categoryController } from "./category.controller";
+import auth, { userRole } from "../../middlewares/auth";
 
 
 const router = express.Router()
 
-router.post('/api/v1', categoryController.createCategory)
+router.post('/category', auth(userRole.ADMIN), categoryController.createCategory)
 
-router.get('/api/v1', categoryController.getAllCategories)
+router.get('/category', categoryController.getAllCategories)
 
-router.get('/api/v1/:id', categoryController.getCategoryById)
+router.get('/category/:id', categoryController.getCategoryById)
 
-router.put('/api/v1/:id', categoryController.updateCategory)
+router.put('/category/:id',auth(userRole.ADMIN), categoryController.updateCategory)
 
 //soft delete category
-router.patch('/api/v1/:id', categoryController.softDeleteCategory)
+router.patch('/category/:id',auth(userRole.ADMIN), categoryController.softDeleteCategory)
 
 export const categoryRouter: Router = router

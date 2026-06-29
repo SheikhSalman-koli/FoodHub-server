@@ -141,9 +141,10 @@ model Meal {
   description String
   image       String?
   orderCount  Int     @default(0)
-  price       Decimal
+  price       Decimal @db.Decimal(10,2)
   isDeleted   Boolean @default(false)
   discount    Int? @default(0)
+  isFeatured  Boolean @default(false)
 
   orderItems OrderItem[]
   reviews    Review[]
@@ -155,9 +156,9 @@ model Order {
   customer        User        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   providerId      String
   provider        Provider    @relation(fields: [providerId], references: [id], onDelete: Restrict)
-  subtotal        Decimal
-  deliveryFee     Decimal
-  totalAmount     Decimal
+  subtotal        Decimal @db.Decimal(10,2)
+  deliveryFee     Decimal @db.Decimal(10,2)
+  totalAmount     Decimal @db.Decimal(10,2)
   status          OrderStatus @default(PLACED)
   deliveryAddress String
   contactNumber   String
@@ -174,7 +175,7 @@ model OrderItem {
   mealId   String
   meal     Meal     @relation(fields: [mealId], references: [id], onDelete: Restrict)
   quantity Int
-  price    Decimal
+  price    Decimal @db.Decimal(10,2)
   name     String
   discount Int? @default(0)
 }
@@ -197,6 +198,6 @@ model Review {
   isDeleted Boolean  @default(false)
   createdAt DateTime @default(now()) 
 
-  //  সিকিউরিটি: এক অর্ডারের একই খাবারে ইউজার যেন ডাবল রিভিউ দিতে না পারে
+  // এক অর্ডারের একই খাবারে ইউজার যেন ডাবল রিভিউ দিতে না পারে
   @@unique([customerId, orderId, mealId]) 
 }

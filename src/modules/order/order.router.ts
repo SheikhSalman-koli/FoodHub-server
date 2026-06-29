@@ -5,7 +5,7 @@ import auth, { userRole } from "../../middlewares/auth"
 
 const router = express.Router()
 
-router.post('/order', orderController.createOrder)
+router.post('/order',auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.createOrder)
 
 router.get('/order', auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.getAllOrders)
 
