@@ -11,13 +11,6 @@ type mealBody = {
     price: number
 }
 
-// type updatedMeal = {
-//     categoryId: string;
-//     name: string;
-//     description: string;
-//     image: string;
-//     price: number
-// }
 
 const createmeal = async (body: mealBody) => {
     const result = await prisma.meal.create({
@@ -96,6 +89,18 @@ const getemeals = async (query: Record<string, unknown>) => {
         orderBy: orderByCondition,
     })
 
+    return result
+}
+
+const getProviderMeals = async (provideremail: string) => {
+    const result = await prisma.meal.findMany({
+        where: {
+            provider:{
+                authoremail: provideremail
+            },
+            isDeleted: false
+        }
+    })
     return result
 }
 
@@ -211,8 +216,6 @@ const softDeleteMeal = async (
         throw new Error("this food is not from your rastaurant!")
     }
 
-
-
     const result = await prisma.meal.update({
         where: {
             id: id
@@ -229,5 +232,6 @@ export const mealService = {
     getemeals,
     getSingleMeal,
     editMeal,
-    softDeleteMeal
+    softDeleteMeal,
+    getProviderMeals
 }

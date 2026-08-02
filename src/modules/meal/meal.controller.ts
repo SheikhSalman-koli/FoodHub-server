@@ -37,7 +37,20 @@ const getemeals = async (req: Request, res: Response) => {
     }
 }
 
-
+const getProviderMeals = async (req: Request, res: Response) => {
+    try {
+        const result = await mealService.getProviderMeals(req.params.provideremail as string)
+        res.status(200).json({
+            message: "provider meals retrieved successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(400).json({
+            message: "provider meals not retrieved!",
+            error: error.message
+        })
+    }
+}
 
 const getSingleMeal = async (req: Request<{ id: string }>, res: Response) => {
     try {
@@ -72,8 +85,8 @@ const editMeal = async (req: Request<{ id: string }>, res: Response) => {
                 message: "user not found!",
             })
         }
-        // console.log(id, updatedData);
-        const result = await mealService.editMeal(id, updatedData, user.email)
+        // console.log(id, user?.email, updatedData);
+        const result = await mealService.editMeal(id, updatedData, user?.email)
         res.status(200).json({
             message: "meal edited successfully!",
             data: result
@@ -98,8 +111,8 @@ const softDeleteMeal = async (req: Request<{ id: string }>, res: Response) => {
                 message: "user not found!",
             })
         }
-        // console.log(id, updatedData);
-        const result = await mealService.softDeleteMeal(id, updatedData, user.email)
+        // console.log(id, user?.email, updatedData);
+        const result = await mealService.softDeleteMeal(id, updatedData, user?.email)
         res.status(200).json({
             message: "meal deleted successfully!",
             data: result
@@ -121,5 +134,6 @@ export const mealController = {
     getemeals,
     getSingleMeal,
     editMeal,
-    softDeleteMeal
+    softDeleteMeal,
+    getProviderMeals
 }
