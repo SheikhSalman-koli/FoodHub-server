@@ -3,22 +3,46 @@ import { prisma } from "../../lib/prisma"
 
 type mealBody = {
     categoryId: string;
-    providerId: string;
     name: string;
     description: string;
     image: string;
     orderCount: number;
     price: number
+    discount: number
 }
 
 
-const createmeal = async (body: mealBody) => {
-    const result = await prisma.meal.create({
-        data: body
+const createmeal = async (body: mealBody, email: string) => {
+
+    const provider = await prisma.provider.findUnique({
+        where: {
+            authoremail: email
+        },
+        select: {
+            id: true
+        }
     })
+
+    if (!provider) {
+    throw new Error("প্রোভাইডার প্রোফাইল খুঁজে পাওয়া যায়নি!");
+  }
+
+  const result = await prisma.meal.create({
+    data: {
+      name: body.name,
+      description: body.description,
+      image: body.image,
+      price: Number(body.price),
+      discount: Number(body.discount) || 0,
+      categoryId: body.categoryId,
+      providerId: provider?.id, 
+    },
+  });
 
     return result
 }
+
+
 
 const getemeals = async (query: Record<string, unknown>) => {
 
@@ -97,8 +121,7 @@ const getProviderMeals = async (provideremail: string) => {
         where: {
             provider:{
                 authoremail: provideremail
-            },
-            isDeleted: false
+            }
         }
     })
     return result

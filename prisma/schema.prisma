@@ -32,17 +32,17 @@ enum userStatus {
 }
 
 model User {
-  id            String     @id @default(uuid())
-  name          String
-  email         String
-  emailVerified Boolean    @default(false)
-  image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  isDeleted     Boolean    @default(false)
-  status        userStatus @default(ACTIVATE)
+  id              String     @id @default(uuid())
+  name            String
+  email           String
+  emailVerified   Boolean    @default(false)
+  image           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  isDeleted       Boolean    @default(false)
+  status          userStatus @default(ACTIVATE)
   deliveryAddress String?
 
   provider Provider?
@@ -119,13 +119,13 @@ model Provider {
 }
 
 model Category {
-  id        String  @id @default(uuid())
-  name      String  @unique
-  slug      String  @unique
-  logo      String?
+  id          String  @id @default(uuid())
+  name        String  @unique
+  slug        String  @unique
+  logo        String?
   isAvailable Boolean @default(true)
-  isDeleted Boolean @default(false)
-  meals     Meal[]
+  isDeleted   Boolean @default(false)
+  meals       Meal[]
 }
 
 model Meal {
@@ -141,9 +141,9 @@ model Meal {
   description String
   image       String?
   orderCount  Int     @default(0)
-  price       Decimal @db.Decimal(10,2)
+  price       Decimal @db.Decimal(10, 2)
   isDeleted   Boolean @default(false)
-  discount    Int? @default(0)
+  discount    Int?    @default(0)
   isFeatured  Boolean @default(false)
 
   orderItems OrderItem[]
@@ -156,9 +156,10 @@ model Order {
   customer        User        @relation(fields: [customerId], references: [id], onDelete: Restrict)
   providerId      String
   provider        Provider    @relation(fields: [providerId], references: [id], onDelete: Restrict)
-  subtotal        Decimal @db.Decimal(10,2)
-  deliveryFee     Decimal @db.Decimal(10,2)
-  totalAmount     Decimal @db.Decimal(10,2)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  deliveryFee     Decimal     @db.Decimal(10, 2)
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  discountedAmount Decimal     @db.Decimal(10, 2) @default(0)
   status          OrderStatus @default(PLACED)
   deliveryAddress String
   contactNumber   String
@@ -169,35 +170,34 @@ model Order {
 }
 
 model OrderItem {
-  id       String   @id @default(uuid())
+  id       String  @id @default(uuid())
   orderId  String
-  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order    Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   mealId   String
-  meal     Meal     @relation(fields: [mealId], references: [id], onDelete: Restrict)
+  meal     Meal    @relation(fields: [mealId], references: [id], onDelete: Restrict)
   quantity Int
-  price    Decimal @db.Decimal(10,2)
+  price    Decimal @db.Decimal(10, 2)
   name     String
-  discount Int? @default(0)
+  discount Int?    @default(0)
 }
 
-
 model Review {
-  id        String   @id @default(uuid())
-  customerId    String
-  user      User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  mealId    String
-  meal      Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
-  
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id         String @id @default(uuid())
+  customerId String
+  user       User   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  mealId     String
+  meal       Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade)
 
-  comment   String
- 
-  starCount Int      
-  
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  comment String
+
+  starCount Int
+
   isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now()) 
+  createdAt DateTime @default(now())
 
   // এক অর্ডারের একই খাবারে ইউজার যেন ডাবল রিভিউ দিতে না পারে
-  @@unique([customerId, orderId, mealId]) 
+  @@unique([customerId, orderId, mealId])
 }

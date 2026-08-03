@@ -5,7 +5,14 @@ import { mealService } from './meal.service'
 const createmeal = async (req: Request, res: Response) => {
     try {
 
-        const result = await mealService.createmeal(req?.body)
+        const user = req?.user
+        if (!user) {
+            return res.status(404).json({
+                message: "user not found!",
+            })
+        }
+
+        const result = await mealService.createmeal(req?.body, user?.email)
         res.status(200).json({
             message: "meal created successfully!",
             data: result

@@ -25,14 +25,34 @@ export const createOrder = async (orderData: CreateOrderInput) => {
     // console.log( customerId, providerId, deliveryAddress, contactNumber, deliveryFee, orderItems);
 
     //  রিডিউসের রেজাল্ট undefined হলে ডিফল্ট ০ বসে যাবে
-    const subtotal = orderItems?.reduce((sum: number, item: OrderItemInput) => {
-        const finalPrice = Number(item?.price) || 0;
-        const quantity = Number(item?.quantity) || 0;
-        return sum + (finalPrice * quantity);
-    }, 0) || 0;
+    // const subtotal = orderItems?.reduce((sum: number, item: OrderItemInput) => {
+    //     const finalPrice = Number(item?.price) || 0;
+    //     const quantity = Number(item?.quantity) || 0;
+    //     return sum + (finalPrice * quantity);
+    // }, 0) || 0;
 
+    let originalSubtotal = 0; // মূল দামের যোগফল (যেমন: ২০০)
+    let subtotal = 0;         // ডিসকাউন্ট দেওয়ার পর ফাইনাল খাবারের দাম (যেমন: ১৮০)
+
+    orderItems?.forEach((item: OrderItemInput) => {
+        const originalPrice = Number(item?.price) || 0;
+        const discount = Number(item?.discount) || 0;
+        const quantity = Number(item?.quantity) || 0;
+
+        // ১টি আইটেমের মূল এবং ফাইনাল প্রাইজ
+        const itemOriginalTotal = originalPrice * quantity;
+        const finalPricePerUnit = discount > 0
+            ? originalPrice - (originalPrice * discount) / 100
+            : originalPrice;
+
+        originalSubtotal += itemOriginalTotal;
+        subtotal += finalPricePerUnit * quantity;
+    });
+
+    const discountedAmount = originalSubtotal - subtotal; // কত টাকা ছাড় পেল (যেমন: ২০)
     const totalAmount = subtotal + Number(deliveryFee);
 
+    // console.log(customerId, providerId, deliveryAddress, contactNumber, discountedAmount, subtotal, totalAmount);
     // ডাটাবেজে ট্রানজেকশন রান করা
     await prisma.$transaction(async (tx) => {
         //  অর্ডার মেইন টেবিলে ডাটা তৈরি করা
@@ -41,8 +61,9 @@ export const createOrder = async (orderData: CreateOrderInput) => {
             providerId,
             deliveryAddress,
             contactNumber,
-            deliveryFee,
-            subtotal,
+            deliveryFee: Number(deliveryFee),
+            subtotal,           // ডিসকাউন্টেড পেইড সাবটোটাল
+            discountedAmount,   // মোট সাশ্রয় (Total Saved)
             totalAmount,
         }
 
@@ -114,7 +135,6 @@ const getAllOrders = async (data: { id: string, role: string, email: string }) =
     }
 
     if (role === 'PROVIDER') {
-
         const getProviderId = await prisma.provider.findUnique({
             where: {
                 authoremail: email
@@ -124,6 +144,9 @@ const getAllOrders = async (data: { id: string, role: string, email: string }) =
         const result = await prisma.order.findMany({
             where: {
                 providerId: getProviderId?.id
+            },
+            orderBy: {
+                createdAt: 'desc'
             },
             include: {
                 orderItems: true
