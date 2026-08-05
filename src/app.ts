@@ -8,6 +8,7 @@ import { userRouter } from "./modules/user/user.router"
 import { providerRouter } from "./modules/provider/provider.route"
 import { orderRouter } from "./modules/order/order.router"
 import { reviewRouter } from "./modules/review/review.router"
+import { statsRouter } from "./modules/stats/stats.router"
 
 const app: Application = express()
 
@@ -31,5 +32,7 @@ app.use('/api/v1', providerRouter)
 app.use('/api/v1', orderRouter)
 
 app.use('/review', reviewRouter)
+
+app.use('/api/v1', statsRouter)
 
 export default app

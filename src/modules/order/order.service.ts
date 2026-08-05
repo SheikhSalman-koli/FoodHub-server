@@ -22,17 +22,9 @@ type CreateOrderInput = {
 
 export const createOrder = async (orderData: CreateOrderInput) => {
     const { customerId, providerId, deliveryAddress, contactNumber, deliveryFee, orderItems } = orderData;
-    // console.log( customerId, providerId, deliveryAddress, contactNumber, deliveryFee, orderItems);
 
-    //  রিডিউসের রেজাল্ট undefined হলে ডিফল্ট ০ বসে যাবে
-    // const subtotal = orderItems?.reduce((sum: number, item: OrderItemInput) => {
-    //     const finalPrice = Number(item?.price) || 0;
-    //     const quantity = Number(item?.quantity) || 0;
-    //     return sum + (finalPrice * quantity);
-    // }, 0) || 0;
-
-    let originalSubtotal = 0; // মূল দামের যোগফল (যেমন: ২০০)
-    let subtotal = 0;         // ডিসকাউন্ট দেওয়ার পর ফাইনাল খাবারের দাম (যেমন: ১৮০)
+    let originalSubtotal = 0; 
+    let subtotal = 0;         
 
     orderItems?.forEach((item: OrderItemInput) => {
         const originalPrice = Number(item?.price) || 0;
@@ -49,11 +41,9 @@ export const createOrder = async (orderData: CreateOrderInput) => {
         subtotal += finalPricePerUnit * quantity;
     });
 
-    const discountedAmount = originalSubtotal - subtotal; // কত টাকা ছাড় পেল (যেমন: ২০)
+    const discountedAmount = originalSubtotal - subtotal; // কত টাকা ছাড় পেল 
     const totalAmount = subtotal + Number(deliveryFee);
 
-    // console.log(customerId, providerId, deliveryAddress, contactNumber, discountedAmount, subtotal, totalAmount);
-    // ডাটাবেজে ট্রানজেকশন রান করা
     await prisma.$transaction(async (tx) => {
         //  অর্ডার মেইন টেবিলে ডাটা তৈরি করা
         const orderData = {
@@ -62,8 +52,8 @@ export const createOrder = async (orderData: CreateOrderInput) => {
             deliveryAddress,
             contactNumber,
             deliveryFee: Number(deliveryFee),
-            subtotal,           // ডিসকাউন্টেড পেইড সাবটোটাল
-            discountedAmount,   // মোট সাশ্রয় (Total Saved)
+            subtotal,          
+            discountedAmount,   
             totalAmount,
         }
 

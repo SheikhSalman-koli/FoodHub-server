@@ -21,6 +21,7 @@ const createOrder = async (req: Request, res: Response) => {
 const getAllOrders = async (req: Request, res: Response) => {
     try {
         const { id, role, email } = req?.user ?? {}
+        // console.log(`user: ${id}, role: ${role}, email: ${email}`)
         const data = {
             id: id as string,
             role: role as string,
