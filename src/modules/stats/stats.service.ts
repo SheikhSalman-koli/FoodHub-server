@@ -22,8 +22,8 @@ export const getProviderStats = async (email: string) => {
 //  meal card data
     const [totalMeals, activeMeals, inactiveMeals] = await Promise.all([
       prisma.meal.count({ where: { providerId } }),
-      prisma.meal.count({ where: { providerId, isDeleted: true } }),
       prisma.meal.count({ where: { providerId, isDeleted: false } }),
+      prisma.meal.count({ where: { providerId, isDeleted: true } }),
     ]);
 
 // order card data

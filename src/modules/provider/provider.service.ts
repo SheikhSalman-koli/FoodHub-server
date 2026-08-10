@@ -29,7 +29,7 @@ const createProvider = async (providerData: CreateProviderInput) => {
     const authorEmail = authResult.user.email;
 
     try {
-       
+
         const result = await prisma.provider.create({
             data: {
                 authoremail: authorEmail,
@@ -38,7 +38,7 @@ const createProvider = async (providerData: CreateProviderInput) => {
                 location,
             }
         });
-        
+
         return result;
 
     } catch (error: any) {
@@ -64,6 +64,7 @@ const getAllProvider = async () => {
 }
 
 const getSingleProvider = async (id: string) => {
+
     const result = await prisma.provider.findUnique({
         where: {
             id,
@@ -82,9 +83,70 @@ const getSingleProvider = async (id: string) => {
 }
 
 
+const getProviderByEmail = async (email: string) => {
+
+    const result = await prisma.provider.findUnique({
+        where: { authoremail: email },
+        select: {
+            id: true,
+            restaurantName: true,
+            tagline: true,
+            location: true,
+            logo: true,
+            authoremail: true,
+            _count: {
+                select: {
+                    meals: true,
+                },
+            },
+            meals: {
+                where: { isDeleted: false },
+                select: { id: true },
+            },
+        },
+
+    })
+    return result
+}
+
+
+type providerUpdatedData = {
+    logo: string;
+    restaurantName: string;
+    tagline: string;
+    location: string
+}
+
+const updateProvider = async(id: string, updatedData: Partial<providerUpdatedData>) => {
+
+   const isOwnProfile = await prisma.provider.findUnique({
+     where: {
+        id
+     }
+   })
+
+   if(!isOwnProfile){
+      throw new Error('This is not your profile')
+   }
+
+    const result = await prisma.provider.update({
+        where: {
+            id: id
+        },
+        data: updatedData
+    })
+
+    return result
+}
+
+
+
+
 
 export const providerService = {
     getAllProvider,
     createProvider,
-    getSingleProvider
+    getSingleProvider,
+    getProviderByEmail,
+    updateProvider
 }

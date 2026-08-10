@@ -51,10 +51,45 @@ const getSingleProvider = async(req: Request<{id: string}>, res: Response) => {
         }
 }
 
+const getProviderByEmail = async(req: Request<{email: string}>, res: Response) => {
+      try {
+            const { email } = req?.params
+            const result = await providerService.getProviderByEmail(email)
+            res.status(200).json({
+                message: "provider retrieved successfully!",
+                data: result
+            })
+        } catch (error: any) {
+            res.status(400).json({
+                message: "failed to retrieve provider!",
+                error: error.message
+            })
+        }
+}
+
+
+const updateProvider = async(req: Request<{id: string}>, res: Response) => {
+      try {
+            const { id } = req?.params
+            const result = await providerService.updateProvider(id, req.body)
+            res.status(200).json({
+                message: "provider updated successfully!",
+                data: result
+            })
+        } catch (error: any) {
+            res.status(400).json({
+                message: "failed to update provider!",
+                error: error.message
+            })
+        }
+}
+
 
 
 export const providerController = {
     createProvider,
     getAllProvider,
-    getSingleProvider
+    getSingleProvider,
+    getProviderByEmail,
+    updateProvider
 }
