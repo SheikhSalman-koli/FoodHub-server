@@ -12,7 +12,7 @@ router.get('/provider/:id', providerController.getSingleProvider)
 
 router.get('/providerbyemail/:email', providerController.getProviderByEmail)
 
-router.put('/edit-Provider/:id',  providerController.updateProvider)
+router.put('/edit-Provider/:id', auth(userRole.PROVIDER), providerController.updateProvider)
 
 
 export const providerRouter: Router = router

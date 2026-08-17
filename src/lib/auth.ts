@@ -33,7 +33,7 @@ export const auth = betterAuth({
 
     sendResetPassword: async ({ user, url, token }, request) => {
       const secureResetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(user.email)}`;
-      console.log(token);
+      // console.log(token);
       await transporter.sendMail({
         from: '"Prisma Blog" <prismablog@gmail.com>',
         to: user.email,

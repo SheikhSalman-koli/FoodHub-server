@@ -25,7 +25,7 @@ app.use('/api/v1', categoryRouter)
 
 app.use('/api/v1', mealRouter)
 
-app.use('/user', userRouter)
+app.use('/api/v1', userRouter)
 
 app.use('/api/v1', providerRouter)
 

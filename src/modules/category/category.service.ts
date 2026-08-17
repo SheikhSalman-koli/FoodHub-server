@@ -5,6 +5,7 @@ type categoryBody = {
     slug: string;
     logo?: string;
     isDeleted?: boolean;
+    isAvailable: boolean
 }
 
 const createCategory = async(body: categoryBody) => {
@@ -15,13 +16,20 @@ const createCategory = async(body: categoryBody) => {
     return result
 }
 
-const getAllCategories = async() => {
+const getAvailableCategories = async() => {
     const result = await prisma.category.findMany({
         where: {
-            isDeleted: false
+            isAvailable: true,
+            // isDeleted: false
         }
     })  
 
+    return result
+}
+
+
+const getAllCategories = async() => {
+    const result = await prisma.category.findMany()  
     return result
 }
 
@@ -29,7 +37,6 @@ const getCategoryById = async(id: string) => {
     const result = await prisma.category.findFirst({
         where: {
             id: id,
-            isDeleted: false
         }
     })
 
@@ -41,7 +48,6 @@ const updateCategory = async(id: string, body: Partial<categoryBody>) => {
     const result = await prisma.category.update({
         where: {
             id: id,
-            isDeleted: false
         },
         data: body
     })
@@ -63,6 +69,7 @@ const softDeleteCategory = async(id: string, data: Partial<categoryBody>) => {
 export const categoryService = {
     createCategory,
     getAllCategories,
+    getAvailableCategories,
     getCategoryById,
     updateCategory,
     softDeleteCategory

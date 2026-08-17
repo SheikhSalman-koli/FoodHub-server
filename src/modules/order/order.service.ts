@@ -106,7 +106,16 @@ const getAllOrders = async (data: { id: string, role: string, email: string }) =
     if (role === 'ADMIN') {
         const result = await prisma.order.findMany({
             include: {
-                orderItems: true
+                orderItems: true,
+                provider: {
+                    select: {
+                        id: true,
+                        restaurantName: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         })
         return result
@@ -116,6 +125,9 @@ const getAllOrders = async (data: { id: string, role: string, email: string }) =
         const result = await prisma.order.findMany({
             where: {
                 customerId: id
+            },
+            orderBy: {
+                createdAt: 'desc'
             },
             include: {
                 orderItems: true

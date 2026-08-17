@@ -124,7 +124,7 @@ model Category {
   slug        String  @unique
   logo        String?
   isAvailable Boolean @default(true)
-  isDeleted   Boolean @default(false)
+  // isDeleted   Boolean @default(false) i can do it by isAvailable
   meals       Meal[]
 }
 

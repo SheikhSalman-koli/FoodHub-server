@@ -79,7 +79,7 @@ const changePassword = async (req: Request, res: Response) => {
         const userId = user.id
         const currentSessionId = req?.session?.id as string
 
-        console.log(userId, currentSessionId);
+        // console.log(userId, currentSessionId);
         
         await userService.changePassword({
             userId,

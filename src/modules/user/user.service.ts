@@ -1,8 +1,7 @@
-import bcrypt from "bcryptjs"
+
 import { Prisma, userStatus, Role } from "../../../generated/prisma/client"
 import { prisma } from "../../lib/prisma"
 import { userRole } from "../../middlewares/auth"
-import {auth as betterAuth} from '../../lib/auth'
 import { hashPassword, verifyPassword } from "better-auth/crypto"
 
 
@@ -41,7 +40,6 @@ const updateProfile = async (userId: string , data: Prisma.UserUncheckedUpdateIn
 }
 
 // services/user.service.ts
-
 const updateUserStatus = async (id: string, status: userStatus) => {
     if (!status) {
         throw new Error("Status is required, you can update just Status!.");

@@ -7,7 +7,9 @@ const router = express.Router()
 
 router.post('/category', auth(userRole.ADMIN), categoryController.createCategory)
 
-router.get('/category', categoryController.getAllCategories)
+router.get('/all-category',auth(userRole.ADMIN), categoryController.getAllCategories)
+
+router.get('/available-category', categoryController.getAvailableCategories)
 
 router.get('/category/:id', categoryController.getCategoryById)
 
