@@ -31,7 +31,7 @@ app.use('/api/v1', providerRouter)
 
 app.use('/api/v1', orderRouter)
 
-app.use('/review', reviewRouter)
+app.use('/api/v1', reviewRouter)
 
 app.use('/api/v1', statsRouter)
 

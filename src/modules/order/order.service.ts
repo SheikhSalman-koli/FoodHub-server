@@ -159,6 +159,23 @@ const getAllOrders = async (data: { id: string, role: string, email: string }) =
 }
 
 
+const getSingleOrder = async(id: string) =>{
+      const result = await prisma.order.findUnique({
+            where: {
+                id: id
+            },
+            include: {
+                orderItems: {
+                    include: {
+                        review: true
+                    }
+                }
+            }
+        })
+        return result
+}
+
+
 const updateOrderStatus = async (orderId: string, role: string, userId: string, userEmail: string, status: OrderStatus) => {
 
     const getOrderInfo = await prisma.order.findUnique({
@@ -241,5 +258,6 @@ const updateOrderStatus = async (orderId: string, role: string, userId: string, 
 export const orderService = {
     createOrder,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    getSingleOrder
 }

@@ -3,10 +3,7 @@ import { reviewService } from './review.service'
 
 const createReview = async(req: Request, res: Response) => {
     try {
-     
-        const body = req?.body
-        // console.log(body);
-        const result = await reviewService.createReview(body)
+        const result = await reviewService.createReview(req?.body)
         res.status(200).json({
             message: "review created successfully!",
             data: result

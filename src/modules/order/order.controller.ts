@@ -42,6 +42,23 @@ const getAllOrders = async (req: Request, res: Response) => {
     }
 }
 
+const getSingleOrder = async (req: Request<{id: string}>, res: Response) => {
+    try {
+        const { id } = req?.params
+      
+        const result = await orderService.getSingleOrder(id)
+        res.status(200).json({
+            message: "order retrieved successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(400).json({
+            message: "failed to retrieve order!",
+            error: error.message
+        })
+    }
+}
+
 const updateOrderStatus = async (req: Request<{ orderId: string }>, res: Response) => {
     try {
         const { orderId } = req.params
@@ -73,5 +90,6 @@ const updateOrderStatus = async (req: Request<{ orderId: string }>, res: Respons
 export const orderController = {
     createOrder,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    getSingleOrder
 }

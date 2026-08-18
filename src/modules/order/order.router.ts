@@ -9,6 +9,8 @@ router.post('/order',auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER),
 
 router.get('/order', auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.getAllOrders)
 
+router.get('/order/:id', auth(userRole.ADMIN, userRole.PROVIDER, userRole.CUSTOMER), orderController.getSingleOrder)
+
 router.patch('/update-status/order/:orderId', auth(userRole.CUSTOMER, userRole.PROVIDER), orderController.updateOrderStatus)
 
 

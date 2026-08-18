@@ -169,6 +169,7 @@ model Order {
   reviews         Review[]
 }
 
+
 model OrderItem {
   id       String  @id @default(uuid())
   orderId  String
@@ -179,6 +180,8 @@ model OrderItem {
   price    Decimal @db.Decimal(10, 2)
   name     String
   discount Int?    @default(0)
+
+  review   Review?
 }
 
 model Review {
@@ -190,6 +193,9 @@ model Review {
 
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  orderItemId String    @unique
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   comment String
 

@@ -3,8 +3,7 @@ import { reviewController } from './review.controller'
 
 const router = express.Router()
 
-router.post('/api/v1', reviewController.createReview)
-
+router.post('/review', reviewController.createReview)
 
 
 export const reviewRouter = router

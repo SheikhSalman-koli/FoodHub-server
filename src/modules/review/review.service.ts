@@ -1,26 +1,27 @@
 import { prisma } from "../../lib/prisma"
 
 type ReviewInput = {
-  orderId: string,
-  mealId: string,
-  customerId: string,
-  comment: string,
-  starCount: number,
+orderId: string;
+  orderItemId: string;
+  mealId: string;
+  starCount: number; // Integer (1 to 5)
+  comment: string;
+  customerId: string;
 }
 
 
-const createReview = async (reviewData: ReviewInput) => {
-  const { customerId, mealId, orderId, comment, starCount } = reviewData;
+const createReview = async (data: ReviewInput) => {
+  // চেক করা হচ্ছে অর্ডারটি আসলেই ডেলিভার্ড এবং এই ইউজারের কিনা
 
-  // 🔍 চেক করা হচ্ছে অর্ডারটি আসলেই ডেলিভার্ড এবং এই ইউজারের কিনা
+  // console.log(data);
   const validOrder = await prisma.order.findFirst({
     where: {
-      id: orderId,
-      customerId: customerId,
+      id: data.orderId,
+      customerId: data.customerId,
       status: "DELIVERED",
       orderItems: {
         some: {
-          mealId: mealId, 
+          mealId: data.mealId, 
         },
       },
     },
@@ -31,15 +32,15 @@ const createReview = async (reviewData: ReviewInput) => {
     throw new Error("আপনি কেবল সফলভাবে ডেলিভারি পাওয়া খাবারের ওপরই রিভিউ দিতে পারবেন!");
   }
 
-
   const result = await prisma.review.create({
     data: {
-      orderId,
-      mealId,
-      customerId,
-      comment,
-      starCount,
-    }
+      customerId: data.customerId,
+      orderId: data.orderId,
+      orderItemId: data.orderItemId,
+      mealId: data.mealId,
+      starCount: data.starCount,
+      comment: data.comment,
+    },
   })
 
   return result

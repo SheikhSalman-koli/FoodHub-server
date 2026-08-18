@@ -223,7 +223,7 @@ export const getAdminDashboardStats = async () => {
       cancelledOrdersCount++;
     }
 
-    // 🏆 Provider Calculation
+    // Provider Calculation
     if (order.providerId) {
       const providerName = order.provider?.restaurantName || "Unknown Provider";
       if (!providerRevenueMap[order.providerId]) {
