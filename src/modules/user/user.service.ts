@@ -18,8 +18,72 @@ const getAllUsers = async () => {
 }
 
 
-const updateProfile = async (userId: string , data: Prisma.UserUncheckedUpdateInput) => {
+const getSingleUser = async (id: string) => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      // 1. Correct way to fetch total counts
+      _count: {
+        select: {
+          orders: true,
+          reviews: true,
+        },
+      },
+      // 2. Reviews with meal details
+      reviews: {
+        select: {
+          id: true,
+          comment: true,
+          starCount: true,
+          createdAt: true,
+          meal: {
+            select: {
+              id: true,
+              name: true,
+              image: true, // Included image for review UI
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
+      // 3. Orders with item details and images
+      orders: {
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          orderItems: {
+            select: {
+              id: true,
+              quantity: true,
+              price: true,
+              meal: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      },
+    },
+  });
 
+  return result;
+};
+
+
+const updateProfile = async (userId: string , data: Prisma.UserUncheckedUpdateInput) => {
+console.log(userId, data);
     const isExist = await prisma.user.findUnique({
         where: {
             id: userId
@@ -137,8 +201,6 @@ const changePassword = async (payload: { userId: string; currentSessionId: strin
     }
   });
 
-
-
   if (!userAccount || !userAccount.password) {
     throw new Error("This account doesn't have a password set. (Logged in via Google?)");
   }
@@ -179,6 +241,7 @@ await prisma.$transaction(async (tx) => {
 
 export const userService = {
     getAllUsers,
+    getSingleUser,
     updateProfile,
     updateUserStatus,
     changePassword

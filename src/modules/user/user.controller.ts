@@ -19,19 +19,29 @@ const getAllUsers = async (req: Request, res: Response) => {
 }
 
 
-const updateProfile = async (req: Request, res: Response) => {
+const getAUsers = async (req: Request<{id: string}>, res: Response) => {
     try {
+        const {id} = req?.params
 
-        const user = req?.user
-        if (!user) {
-            return res.status(401).json({
-                message: "User not authenticated"
-            })
-        }
-        const { id } = user
-        const { name, image, phone } = req.body
-        const updatedDate = { name, image, phone }
+        const result = await userService.getSingleUser(id)
+        res.status(200).json({
+            message: "user retrieved successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(400).json({
+            message: "failed to retrieve user!",
+            error: error.message
+        })
+    }
+}
 
+const updateProfile = async (req: Request<{id: string}>, res: Response) => {
+    try {
+        const {id} = req?.params
+        const { name, image, phone, deliveryAddress } = req.body
+        const updatedDate = {id, name, image, phone, deliveryAddress }
+        
         const result = await userService.updateProfile(id, updatedDate)
         res.status(200).json({
             message: "Profile updated successfully!",
@@ -103,6 +113,7 @@ const changePassword = async (req: Request, res: Response) => {
 
 export const userController = {
     getAllUsers,
+    getAUsers,
     updateProfile,
     updateUserStatus,
     changePassword

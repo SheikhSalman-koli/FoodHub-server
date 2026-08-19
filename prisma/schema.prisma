@@ -44,11 +44,9 @@ model User {
   isDeleted       Boolean    @default(false)
   status          userStatus @default(ACTIVATE)
   deliveryAddress String?
-
   provider Provider?
   orders   Order[]
   reviews  Review[]
-
   role  Role    @default(CUSTOMER)
   phone String?
 
@@ -113,7 +111,6 @@ model Provider {
   location       String
   logo           String?
   isDeleted      Boolean @default(false)
-
   meals  Meal[]
   orders Order[]
 }
@@ -124,19 +121,15 @@ model Category {
   slug        String  @unique
   logo        String?
   isAvailable Boolean @default(true)
-  // isDeleted   Boolean @default(false) i can do it by isAvailable
   meals       Meal[]
 }
 
 model Meal {
   id String @id @default(uuid())
-
   providerId String
   provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-
   name        String
   description String
   image       String?
@@ -145,7 +138,6 @@ model Meal {
   isDeleted   Boolean @default(false)
   discount    Int?    @default(0)
   isFeatured  Boolean @default(false)
-
   orderItems OrderItem[]
   reviews    Review[]
 }
@@ -180,7 +172,6 @@ model OrderItem {
   price    Decimal @db.Decimal(10, 2)
   name     String
   discount Int?    @default(0)
-
   review   Review?
 }
 
@@ -190,20 +181,14 @@ model Review {
   user       User   @relation(fields: [customerId], references: [id], onDelete: Cascade)
   mealId     String
   meal       Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade)
-
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
   orderItemId String    @unique
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-
   comment String
-
   starCount Int
-
   isDeleted Boolean  @default(false)
   createdAt DateTime @default(now())
-
   // এক অর্ডারের একই খাবারে ইউজার যেন ডাবল রিভিউ দিতে না পারে
   @@unique([customerId, orderId, mealId])
 }
