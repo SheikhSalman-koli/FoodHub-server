@@ -6,15 +6,15 @@ import { hashPassword, verifyPassword } from "better-auth/crypto"
 
 
 const getAllUsers = async () => {
-    const result = await prisma.user.findMany({
-        where: {
-            isDeleted: false,
-            role: {
-                not: "ADMIN"
-            }
-        }
-    })
-    return result
+  const result = await prisma.user.findMany({
+    where: {
+      isDeleted: false,
+      role: {
+        not: "ADMIN"
+      }
+    }
+  })
+  return result
 }
 
 
@@ -82,122 +82,121 @@ const getSingleUser = async (id: string) => {
 };
 
 
-const updateProfile = async (userId: string , data: Prisma.UserUncheckedUpdateInput) => {
-console.log(userId, data);
-    const isExist = await prisma.user.findUnique({
-        where: {
-            id: userId
-        }
-    })
-
-    if(!isExist){
-        throw new Error('User not exist!')
+const updateProfile = async (userId: string, data: Prisma.UserUncheckedUpdateInput) => {
+  const isExist = await prisma.user.findUnique({
+    where: {
+      id: userId
     }
+  })
 
-    const result = await prisma.user.update({
-        where: {
-            id: userId
-        },
-        data: data
-    })
-    return result
+  if (!isExist) {
+    throw new Error('User not exist!')
+  }
+
+  const result = await prisma.user.update({
+    where: {
+      id: userId
+    },
+    data: data
+  })
+  return result
 }
 
 // services/user.service.ts
 const updateUserStatus = async (id: string, status: userStatus) => {
-    if (!status) {
-        throw new Error("Status is required, you can update just Status!.");
-    }
+  if (!status) {
+    throw new Error("Status is required, you can update just Status!.");
+  }
 
-    const result = await prisma.$transaction(async (tx) => {
-        
-        const user = await tx.user.findUnique({
-            where: { id },
-            select: { 
-                role: true,
-                email: true
-            }
-        });
+  const result = await prisma.$transaction(async (tx) => {
 
-        if (!user) {
-            throw new Error("User not found!");
-        }
-
-        const updatedUser = await tx.user.update({
-            where: { id },
-            data: { status }
-        });
-
-        // প্রোভাইডার SUSPEND হলে তার সব খাবার সফট-ডিলিট (isDeleted: true) হবে
-        if (user?.role === userRole.PROVIDER && status === userStatus.SUSPENDE) {
-            await tx.meal.updateMany({
-                where: { 
-                    provider: {
-                        authoremail: user?.email 
-                    }
-                },
-                data: { 
-                    isDeleted: true 
-                }
-            });
-             await tx.provider.update({
-                where: { 
-                    authoremail: user?.email
-                },
-                data: { 
-                    isDeleted: true 
-                }
-            });
-        }
-
-        // প্রোভাইডার আবার ACTIVE হলে তার খাবারগুলো ফেরত আসবে (isDeleted: false)
-        if (user.role === userRole.PROVIDER && status === userStatus.ACTIVATE) {
-            await tx.meal.updateMany({
-                where: { 
-                    provider: {
-                        authoremail: user.email 
-                    }
-                },
-                data: { 
-                    isDeleted: false 
-                }
-            });
-               await tx.provider.update({
-                where: { 
-                    authoremail: user.email
-                },
-                data: { 
-                    isDeleted: false 
-                }
-            });
-        }
-
-        return updatedUser;
+    const user = await tx.user.findUnique({
+      where: { id },
+      select: {
+        role: true,
+        email: true
+      }
     });
 
-    return result;
+    if (!user) {
+      throw new Error("User not found!");
+    }
+
+    const updatedUser = await tx.user.update({
+      where: { id },
+      data: { status }
+    });
+
+    // প্রোভাইডার SUSPEND হলে তার সব খাবার সফট-ডিলিট (isDeleted: true) হবে
+    if (user?.role === userRole.PROVIDER && status === userStatus.SUSPENDE) {
+      await tx.meal.updateMany({
+        where: {
+          provider: {
+            authoremail: user?.email
+          }
+        },
+        data: {
+          isDeleted: true
+        }
+      });
+      await tx.provider.update({
+        where: {
+          authoremail: user?.email
+        },
+        data: {
+          isDeleted: true
+        }
+      });
+    }
+
+    // প্রোভাইডার আবার ACTIVE হলে তার খাবারগুলো ফেরত আসবে (isDeleted: false)
+    if (user.role === userRole.PROVIDER && status === userStatus.ACTIVATE) {
+      await tx.meal.updateMany({
+        where: {
+          provider: {
+            authoremail: user.email
+          }
+        },
+        data: {
+          isDeleted: false
+        }
+      });
+      await tx.provider.update({
+        where: {
+          authoremail: user.email
+        },
+        data: {
+          isDeleted: false
+        }
+      });
+    }
+
+    return updatedUser;
+  });
+
+  return result;
 };
 
 
 
-const changePassword = async (payload: { userId: string; currentSessionId: string; currentPassword: string; newPassword: string }) => {
-  const { userId, currentSessionId, currentPassword, newPassword } = payload;
+const changePassword = async (payload: { userId: string; currentSessionId: string; currentPassword: string; confirmPassword: string }) => {
+  const { userId, currentSessionId, currentPassword, confirmPassword } = payload;
 
-  if (!currentPassword || !newPassword) {
+  if (!currentPassword || !confirmPassword) {
     throw new Error("Both current and new passwords are required!");
   }
 
-  if (currentPassword === newPassword) {
+  if (currentPassword === confirmPassword) {
     throw new Error("New password cannot be the same as current password!");
   }
 
   const userAccount = await prisma.account.findFirst({
-    where: { 
-      userId: userId 
+    where: {
+      userId: userId
     },
     select: {
       id: true,
-      password: true 
+      password: true
     }
   });
 
@@ -205,7 +204,7 @@ const changePassword = async (payload: { userId: string; currentSessionId: strin
     throw new Error("This account doesn't have a password set. (Logged in via Google?)");
   }
 
- const isMatch = await verifyPassword({
+  const isMatch = await verifyPassword({
     password: currentPassword, // ইউজারের দেওয়া পাসওয়ার্ড
     hash: userAccount.password, // ডাটাবেজের Scrypt হ্যাশ
   });
@@ -213,36 +212,36 @@ const changePassword = async (payload: { userId: string; currentSessionId: strin
     throw new Error("Your current password is incorrect!");
   }
 
-const hashedNewPassword = await hashPassword(newPassword);
+  const hashedNewPassword = await hashPassword(confirmPassword);
 
-await prisma.$transaction(async (tx) => {
-  await tx.account.update({
-    where: { 
-      id: userAccount.id 
-    },
-    data: {
-      password: hashedNewPassword
-    }
-  });
-
-  await tx.session.deleteMany({
-    where: {
-      userId: userId,
-      id: {
-        not: currentSessionId 
+  await prisma.$transaction(async (tx) => {
+    await tx.account.update({
+      where: {
+        id: userAccount.id
+      },
+      data: {
+        password: hashedNewPassword
       }
-    }
+    });
+
+    await tx.session.deleteMany({
+      where: {
+        userId: userId,
+        id: {
+          not: currentSessionId
+        }
+      }
+    });
+
   });
-  
-});
 
 };
 
 
 export const userService = {
-    getAllUsers,
-    getSingleUser,
-    updateProfile,
-    updateUserStatus,
-    changePassword
+  getAllUsers,
+  getSingleUser,
+  updateProfile,
+  updateUserStatus,
+  changePassword
 }

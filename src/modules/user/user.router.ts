@@ -12,6 +12,6 @@ router.put('/user/update-profile/:id', auth(userRole.CUSTOMER, userRole.PROVIDER
 
 router.patch('/update-status/:id', auth(userRole.ADMIN), userController.updateUserStatus )
 
-router.patch('/change-password', auth(userRole.CUSTOMER, userRole.PROVIDER, userRole.ADMIN), userController.changePassword )
+router.patch('/change-password/:id', auth(userRole.CUSTOMER, userRole.PROVIDER, userRole.ADMIN), userController.changePassword )
 
 export const userRouter: Router = router

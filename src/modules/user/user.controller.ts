@@ -2,7 +2,6 @@ import { Request, Response } from "express"
 import { userService } from "./user.service"
 
 
-
 const getAllUsers = async (req: Request, res: Response) => {
     try {
         const result = await userService.getAllUsers()
@@ -17,7 +16,6 @@ const getAllUsers = async (req: Request, res: Response) => {
         })
     }
 }
-
 
 const getAUsers = async (req: Request<{id: string}>, res: Response) => {
     try {
@@ -75,27 +73,19 @@ const updateUserStatus = async (req: Request<{ id: string }>, res: Response) => 
     }
 };
 
-const changePassword = async (req: Request, res: Response) => {
+const changePassword = async (req: Request<{id: string}>, res: Response) => {
     try {
-        const { currentPassword, newPassword } = req.body;
+        const { currentPassword, confirmPassword } = req.body;
 
-        const user = req?.user
-        if (!user) {
-            return res.status(401).json({
-                message: "User not authenticated"
-            })
-        }
+        const {id} = req?.params
 
-        const userId = user.id
         const currentSessionId = req?.session?.id as string
-
-        // console.log(userId, currentSessionId);
         
         await userService.changePassword({
-            userId,
+            userId: id,
             currentSessionId,
             currentPassword,
-            newPassword
+            confirmPassword
         });
 
         res.status(200).json({
