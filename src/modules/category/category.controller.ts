@@ -1,4 +1,4 @@
-import { categoryService } from "./category.service"
+import { categoryService } from "./category.service.js"
 import { Request, Response } from 'express'
 
 const createCategory = async(req: Request, res: Response) => {

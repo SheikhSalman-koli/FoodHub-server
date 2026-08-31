@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import { providerService } from "./provider.service";
-
-
+import { providerService } from "./provider.service.js";
 
 const createProvider = async(req: Request, res: Response) => {
     try {

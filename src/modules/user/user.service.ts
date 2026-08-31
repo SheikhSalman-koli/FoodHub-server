@@ -1,7 +1,8 @@
 
-import { Prisma, userStatus, Role } from "../../../generated/prisma/client"
-import { prisma } from "../../lib/prisma"
-import { userRole } from "../../middlewares/auth"
+// import { Prisma, userStatus, Role } from "../../../generated/prisma/client.js"
+import { Prisma, userStatus } from "../../../generated/prisma/index.js"
+import { prisma } from "../../lib/prisma.js"
+import { userRole } from "../../middlewares/auth.js"
 import { hashPassword, verifyPassword } from "better-auth/crypto"
 
 
@@ -24,14 +25,12 @@ const getSingleUser = async (id: string) => {
       id: id,
     },
     include: {
-      // 1. Correct way to fetch total counts
       _count: {
         select: {
           orders: true,
           reviews: true,
         },
       },
-      // 2. Reviews with meal details
       reviews: {
         select: {
           id: true,
@@ -42,7 +41,7 @@ const getSingleUser = async (id: string) => {
             select: {
               id: true,
               name: true,
-              image: true, // Included image for review UI
+              image: true,
             },
           },
         },
@@ -50,7 +49,6 @@ const getSingleUser = async (id: string) => {
           createdAt: 'desc',
         },
       },
-      // 3. Orders with item details and images
       orders: {
         select: {
           id: true,
@@ -102,7 +100,7 @@ const updateProfile = async (userId: string, data: Prisma.UserUncheckedUpdateInp
   return result
 }
 
-// services/user.service.ts
+
 const updateUserStatus = async (id: string, status: userStatus) => {
   if (!status) {
     throw new Error("Status is required, you can update just Status!.");
@@ -205,8 +203,8 @@ const changePassword = async (payload: { userId: string; currentSessionId: strin
   }
 
   const isMatch = await verifyPassword({
-    password: currentPassword, // ইউজারের দেওয়া পাসওয়ার্ড
-    hash: userAccount.password, // ডাটাবেজের Scrypt হ্যাশ
+    password: currentPassword, 
+    hash: userAccount.password,
   });
   if (!isMatch) {
     throw new Error("Your current password is incorrect!");

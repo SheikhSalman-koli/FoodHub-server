@@ -1,19 +1,19 @@
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../../lib/prisma.js"
 
 type ReviewInput = {
 orderId: string;
   orderItemId: string;
   mealId: string;
-  starCount: number; // Integer (1 to 5)
+  starCount: number;
   comment: string;
   customerId: string;
 }
 
 
 const createReview = async (data: ReviewInput) => {
-  // চেক করা হচ্ছে অর্ডারটি আসলেই ডেলিভার্ড এবং এই ইউজারের কিনা
 
   // console.log(data);
+  // validation
   const validOrder = await prisma.order.findFirst({
     where: {
       id: data.orderId,
@@ -27,7 +27,6 @@ const createReview = async (data: ReviewInput) => {
     },
   });
 
-  // যদি অর্ডার খুঁজে না পাওয়া যায় বা শর্ত না মিলে
   if (!validOrder) {
     throw new Error("আপনি কেবল সফলভাবে ডেলিভারি পাওয়া খাবারের ওপরই রিভিউ দিতে পারবেন!");
   }
@@ -47,6 +46,38 @@ const createReview = async (data: ReviewInput) => {
 }
 
 
+const getAllReviews =async()=>{
+  const result = await prisma.review.findMany({
+      orderBy:{
+      createdAt: 'desc'
+    },
+    select:{
+      id: true,
+      comment: true,
+      starCount: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true
+        }
+      },
+      meal: {
+        select: {
+          id: true,
+          name: true
+        }
+      },
+    }
+  })
+
+  return result
+}
+
+
+
 export const reviewService = {
   createReview,
+  getAllReviews
 }

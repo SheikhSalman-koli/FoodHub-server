@@ -1,6 +1,7 @@
-import { OrderStatus } from "../../../generated/prisma/enums";
-import { prisma } from "../../lib/prisma"
-import { userRole } from "../../middlewares/auth";
+// import { OrderStatus } from "../../../generated/prisma/client.js";
+import { OrderStatus } from "../../../generated/prisma/index.js";
+import { prisma } from "../../lib/prisma.js"
+import { userRole } from "../../middlewares/auth.js";
 
 type OrderItemInput = {
     mealId: string,
@@ -61,7 +62,6 @@ export const createOrder = async (orderData: CreateOrderInput) => {
             data: orderData,
         });
 
-        //------------------------
         // অর্ডারের ভেতরের আইটেমগুলো লুপ চালিয়ে OrderItem ডেটা রেডি করা
         const orderItemsData = orderItems?.map((item: OrderItemInput) => ({
             orderId: order.id,
@@ -77,21 +77,19 @@ export const createOrder = async (orderData: CreateOrderInput) => {
             data: orderItemsData,
         });
 
-        // Promise.all ব্যবহার করা হয়েছে যাতে সবগুলো আপডেট কোয়ারি একসাথে প্যারালালি রান হয়
         await Promise.all(
             orderItems?.map((item: OrderItemInput) =>
                 tx.meal.update({
                     where: { id: item?.mealId },
                     data: {
                         orderCount: {
-                            increment: item?.quantity, // ইউজারের অর্ডার করা quantity অনুযায়ী কাউন্ট বাড়বে
+                            increment: item?.quantity, 
                         },
                     },
                 })
             )
         );
 
-        // সবশেষে রিলেশনসহ অর্ডার ডেটা রিটার্ন করতে চাইলে এভাবে করতে পারেন (ঐচ্ছিক)
         return await tx.order.findUnique({
             where: { id: order.id },
             include: { orderItems: true }

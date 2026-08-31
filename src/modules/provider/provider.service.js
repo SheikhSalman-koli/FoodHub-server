@@ -1,0 +1,106 @@
+import { auth } from "../../lib/auth.js";
+import { prisma } from "../../lib/prisma.js";
+const createProvider = async (providerData) => {
+    const { name, email, password, role, restaurantName, tagline, location } = providerData;
+    const authResult = await auth.api.signUpEmail({
+        body: { name, email, password, role },
+    });
+    if (!authResult || !authResult.user) {
+        throw new Error("ইউজার অ্যাকাউন্ট তৈরি করা যায়নি।");
+    }
+    const authorEmail = authResult.user.email;
+    try {
+        const result = await prisma.provider.create({
+            data: {
+                authoremail: authorEmail,
+                restaurantName,
+                tagline,
+                location,
+            }
+        });
+        return result;
+    }
+    catch (error) {
+        console.log(error);
+        try {
+            await prisma.user.delete({
+                where: { email: authorEmail },
+            });
+        }
+        catch (deleteError) {
+            console.error("Critical: Rollback failed for user:", authorEmail, deleteError);
+        }
+        throw new Error(error?.message || "রেস্টুরেন্ট ডিটেইলস সেভ করা যায়নি। রেজিস্ট্রেশন বাতিল করা হয়েছে।");
+    }
+};
+const getAllProvider = async () => {
+    const result = await prisma.provider.findMany({
+        where: {
+            isDeleted: false
+        },
+    });
+    return result;
+};
+const getSingleProvider = async (id) => {
+    const result = await prisma.provider.findUnique({
+        where: {
+            id,
+            isDeleted: false
+        },
+        include: {
+            meals: {
+                where: {
+                    isDeleted: false
+                }
+            }
+        }
+    });
+    return result;
+};
+const getProviderByEmail = async (email) => {
+    const result = await prisma.provider.findUnique({
+        where: { authoremail: email },
+        select: {
+            id: true,
+            restaurantName: true,
+            tagline: true,
+            location: true,
+            logo: true,
+            authoremail: true,
+            _count: {
+                select: {
+                    meals: true,
+                },
+            },
+            meals: {
+                where: { isDeleted: false },
+                select: { id: true },
+            },
+        },
+    });
+    return result;
+};
+const updateProvider = async (id, updatedData) => {
+    const isOwnProfile = await prisma.provider.findUnique({
+        where: {
+            id
+        }
+    });
+    if (!isOwnProfile) {
+        throw new Error('This is not your profile');
+    }
+    const result = await prisma.provider.update({
+        where: {
+            id: id
+        },
+        data: updatedData
+    });
+    return result;
+};
+export const providerService = {
+    getAllProvider,
+    createProvider,
+    getSingleProvider,
+    getProviderByEmail,
+    updateProvider
+};

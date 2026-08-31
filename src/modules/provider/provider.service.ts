@@ -1,6 +1,6 @@
-import { auth } from "../../lib/auth"
-import { prisma } from "../../lib/prisma"
-import { userRole } from "../../middlewares/auth"
+import { auth } from "../../lib/auth.js"
+import { prisma } from "../../lib/prisma.js"
+import { userRole } from "../../middlewares/auth.js"
 
 
 
@@ -42,6 +42,7 @@ const createProvider = async (providerData: CreateProviderInput) => {
         return result;
 
     } catch (error: any) {
+        console.log(error);
         try {
             await prisma.user.delete({
                 where: { email: authorEmail },

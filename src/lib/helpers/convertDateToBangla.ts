@@ -1,15 +1,15 @@
-// যেকোনো ইংরেজি সংখ্যাকে বাংলায় রূপান্তর
+// ইংরেজি সংখ্যাকে বাংলায় রূপান্তর
 export const toBanglaNumber = (num: number | string): string => {
   const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   return String(num).replace(/\d/g, (digit) => banglaDigits[parseInt(digit)]);
 };
 
-// বাংলা ফরম্যাটিং ফাংশন
+// বাংলা ফরম্যাটিং
 export const formatToBanglaDate = (label: string, type: "daily" | "weekly" | "monthly"): string => {
   if (!label) return "";
 
   try {
-    // MONTHLY: "2026-08" ➔ "আগস্ট ২০২৬"
+    // MONTHLY
     if (type === "monthly") {
       const [year, month] = label.split("-");
       if (year && month) {
@@ -19,15 +19,13 @@ export const formatToBanglaDate = (label: string, type: "daily" | "weekly" | "mo
       }
     }
 
-    // WEEKLY: "2026-08-03" (YYYY-MM-DD) বা "2026-W30"
+    // WEEKLY
     if (type === "weekly") {
-      // যদি ডাটাবেজ থেকে "2026-W30" আসে
       if (label.includes("W")) {
         const [year, week] = label.split("-W");
         return `সপ্তাহ ${toBanglaNumber(week)} (${toBanglaNumber(year)})`;
       }
 
-      // যদি "YYYY-MM-DD" আসে (যেমন: 2026-08-03)
       const [year, month, day] = label.split("-").map(Number);
       if (year && month && day) {
         const startDate = new Date(year, month - 1, day);
@@ -47,7 +45,7 @@ export const formatToBanglaDate = (label: string, type: "daily" | "weekly" | "mo
       }
     }
 
-    // DAILY: "2026-08-03" ➔ "৩ আগস্ট"
+    // DAILY
     if (type === "daily") {
       const [year, month, day] = label.split("-").map(Number);
       if (year && month && day) {
@@ -61,6 +59,5 @@ export const formatToBanglaDate = (label: string, type: "daily" | "weekly" | "mo
     console.error("Bangla Date Conversion Error:", error);
   }
 
-  // ফালব্যাক: সংখ্যাগুলোকে কেবল বাংলায় রূপান্তর করে দেওয়া
   return toBanglaNumber(label);
 };

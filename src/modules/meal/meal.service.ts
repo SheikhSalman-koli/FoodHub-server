@@ -1,5 +1,5 @@
-import { Prisma } from "../../../generated/prisma/client";
-import { prisma } from "../../lib/prisma"
+import { Prisma } from "../../../generated/prisma/client.js";
+import { prisma } from "../../lib/prisma.js"
 
 type mealBody = {
     categoryId: string;
@@ -83,7 +83,7 @@ const getemeals = async (query: Record<string, unknown>) => {
         })
     }
 
-    // 💰 ৪. Price Range ফিল্টার
+    // ৪. Price Range ফিল্টার
     const priceFilter: Prisma.DecimalFilter = {}
     if (minPrice !== undefined) {
         priceFilter.gte = new Prisma.Decimal(String(minPrice))

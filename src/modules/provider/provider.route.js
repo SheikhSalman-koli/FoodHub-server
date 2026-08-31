@@ -1,0 +1,10 @@
+import express from "express";
+import { providerController } from "./provider.controller.js";
+import auth, { userRole } from "../../middlewares/auth.js";
+const router = express.Router();
+router.post('/provider', providerController.createProvider);
+router.get('/provider', providerController.getAllProvider);
+router.get('/provider/:id', providerController.getSingleProvider);
+router.get('/providerbyemail/:email', providerController.getProviderByEmail);
+router.put('/edit-Provider/:id', auth(userRole.PROVIDER), providerController.updateProvider);
+export const providerRouter = router;

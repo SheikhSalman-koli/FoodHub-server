@@ -1,6 +1,6 @@
 import { success } from "better-auth";
-import { prisma } from "../../lib/prisma";
-import { formatToBanglaDate } from "../../lib/helpers/convertDateToBangla";
+import { prisma } from "../../lib/prisma.js";
+import { formatToBanglaDate } from "../../lib/helpers/convertDateToBangla.js";
 
 export const getProviderStats = async (email: string) => {
     // console.log(email);
@@ -51,7 +51,6 @@ export const getProviderStats = async (email: string) => {
     const totalEarn = financialStats._sum.subtotal || 0; // earn = subtotal
 
 // chart data
-    
     // Daily Stats
     const dailyRaw = await prisma.$queryRaw<
       { date: string; totalOrders: bigint; totalEarn: number }[]
@@ -67,7 +66,7 @@ export const getProviderStats = async (email: string) => {
       ORDER BY date ASC;
     `;
 
-    // Weekly Stats (গত ১২ সপ্তাহ)
+    // Weekly Stats
     const weeklyRaw = await prisma.$queryRaw<
       { week: string; totalOrders: bigint; totalEarn: number }[]
     >`
@@ -82,7 +81,7 @@ export const getProviderStats = async (email: string) => {
       ORDER BY week ASC;
     `;
 
-    // Monthly Stats (গত ১২ মাস)
+    // Monthly Stats 
     const monthlyRaw = await prisma.$queryRaw<
       { month: string; totalOrders: bigint; totalEarn: number }[]
     >`
@@ -97,7 +96,7 @@ export const getProviderStats = async (email: string) => {
       ORDER BY month ASC;
     `;
 
-    // BigInt কে Number এ কনভার্ট করা (Next.js Serialization Fix)
+
  const formatChartData = (data: any[], keyName: string, type: "daily" | "weekly" | "monthly") =>
   data.map((item) => ({
     label: formatToBanglaDate(item[keyName], type),
@@ -201,7 +200,7 @@ export const getAdminDashboardStats = async () => {
     { id: string; name: string; totalRevenue: number; ordersCount: number }
   > = {};
 
-  // 📈 Growth Chart Mappings
+  // Chart 
   const dailyMap: Record<string, { revenue: number; orders: number }> = {};
   const weeklyMap: Record<string, { revenue: number; orders: number }> = {};
   const monthlyMap: Record<string, { revenue: number; orders: number }> = {};
@@ -240,20 +239,20 @@ export const getAdminDashboardStats = async () => {
       providerRevenueMap[order.providerId].ordersCount += 1;
     }
 
-    // 📊 Daily Key Format (YYYY-MM-DD)
+    // Daily Key Format (YYYY-MM-DD)
     const dayKey = dateObj.toISOString().split("T")[0];
     if (!dailyMap[dayKey]) dailyMap[dayKey] = { revenue: 0, orders: 0 };
     dailyMap[dayKey].orders += 1;
     if (order.status === "DELIVERED") dailyMap[dayKey].revenue += amount;
 
-    // 📊 Weekly Key Format (Week W)
+    // Weekly Key Format (Week W)
     const weekNum = Math.ceil(dateObj.getDate() / 7);
     const weekKey = `W${weekNum} (${dateObj.toLocaleString("default", { month: "short" })})`;
     if (!weeklyMap[weekKey]) weeklyMap[weekKey] = { revenue: 0, orders: 0 };
     weeklyMap[weekKey].orders += 1;
     if (order.status === "DELIVERED") weeklyMap[weekKey].revenue += amount;
 
-    // 📊 Monthly Key Format (MMM YYYY)
+    // Monthly Key Format (MMM YYYY)
     const monthKey = dateObj.toLocaleString("default", { month: "short", year: "2-digit" });
     if (!monthlyMap[monthKey]) monthlyMap[monthKey] = { revenue: 0, orders: 0 };
     monthlyMap[monthKey].orders += 1;

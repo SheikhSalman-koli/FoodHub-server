@@ -1,6 +1,6 @@
 import express, { Router } from "express"
-import { userController } from "./user.controller"
-import auth, { userRole } from "../../middlewares/auth"
+import { userController } from "./user.controller.js"
+import auth, { userRole } from "../../middlewares/auth.js"
 
 const router = express.Router()
 
@@ -12,6 +12,6 @@ router.put('/user/update-profile/:id', auth(userRole.CUSTOMER, userRole.PROVIDER
 
 router.patch('/update-status/:id', auth(userRole.ADMIN), userController.updateUserStatus )
 
-router.patch('/change-password/:id', auth(userRole.CUSTOMER, userRole.PROVIDER, userRole.ADMIN), userController.changePassword )
+router.patch('/change-password/:id', userController.changePassword )
 
 export const userRouter: Router = router
