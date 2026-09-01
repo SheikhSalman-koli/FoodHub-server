@@ -13,7 +13,6 @@ async function main() {
     })
 
     if (existingUser) {
-        console.log('Admin user already exists.')
         return
     }
 
@@ -32,8 +31,6 @@ async function main() {
             data: { emailVerified: true },
         })
     }
-
-    console.log('Admin user seeded successfully')
 }
 
 main()

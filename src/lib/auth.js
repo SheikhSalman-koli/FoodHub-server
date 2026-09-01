@@ -11,12 +11,10 @@ const transporter = nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
+const isProduction = process.env.NODE_ENV === "production";
 export const auth = betterAuth({
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL: process.env.BETTER_AUTH_URL || "https://food-hub-server-gilt.vercel.app",
-    account: {
-        skipStateCookieCheck: true,
-    },
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
@@ -24,11 +22,15 @@ export const auth = betterAuth({
         process.env.APP_URL || "https://shei-shad-client.vercel.app"
     ],
     advanced: {
-        useSecureCookies: process.env.NODE_ENV === "production",
+        useSecureCookies: isProduction,
         defaultCookieAttributes: {
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            secure: process.env.NODE_ENV === "production",
+            sameSite: isProduction ? "none" : "lax",
+            secure: isProduction,
+            httpOnly: true,
         },
+    },
+    account: {
+        skipStateCookieCheck: isProduction,
     },
     emailAndPassword: {
         enabled: true,

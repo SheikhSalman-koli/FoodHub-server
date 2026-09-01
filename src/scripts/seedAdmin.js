@@ -9,7 +9,6 @@ async function main() {
         where: { email: adminEmail },
     });
     if (existingUser) {
-        console.log('Admin user already exists.');
         return;
     }
     const authResult = await auth.api.signUpEmail({
@@ -26,7 +25,6 @@ async function main() {
             data: { emailVerified: true },
         });
     }
-    console.log('Admin user seeded successfully');
 }
 main()
     .catch((e) => {
