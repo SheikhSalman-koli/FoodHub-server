@@ -46,3 +46,14 @@ FoodHub is a full-stack web application for meal ordering. Customers can browse 
 - Manage user status (suspend/activate)
 - View all orders
 - Manage categories
+
+
+---
+
+## Tech Stack 🛠️ 
+
+
+| Technology | Purpose |
+|------------|---------|
+| Node.js + Express | REST API |
+| Postgres + Prisma | Database |
